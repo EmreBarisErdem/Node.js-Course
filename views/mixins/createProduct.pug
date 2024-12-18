@@ -1,0 +1,16 @@
+mixin createProduct(product)
+    .col-md-3
+        .card
+            img(src=`/img/${product.imageUrl}` alt=`${product.imageUrl}`).card-img
+            .card-body
+                h4.card-title
+                    a(href=`/details/${product.id}`) #{product.name}
+                
+                small.text-muted
+                    i.fa.fa-try #{product.price} 
+                
+            .card-footer.text-center
+                a(href=`/products/${product.id}`).btn.btn-outline-secondary.btn-sm Details
+
+                a(href="#").btn.btn-outline-secondary.btn-sm.ml-3 Add to Cart
+
