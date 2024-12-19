@@ -2,12 +2,12 @@ const Product = require('../models/product');
 const Category = require('../models/category');
 exports.getProducts = (req,res,next)=>{
     
-    Product.getAllProducts()
+    Product.findAll()
     .then((products) => {
         res.render('admin/products',
             { 
                 title:'Admin Products', 
-                products: products[0],
+                products: products,
                 path : '/admin/products',
                 action: req.query.action //Query String ile postEditProduct Methodundan geliyor.
             });
@@ -19,39 +19,36 @@ exports.getProducts = (req,res,next)=>{
 
 exports.getAddProduct = (req,res,next)=>{
     // res.sendFile(path.join(__dirname,'../','views','add-product.html'));
-    Category.getAll()
-    .then((categories) => {
-        res.render('admin/add-product',
-            {
-                title: 'New Product',
-                path: '/admin/add-product',
-                categories: categories[0]
-            }); //view engine 'i kullanıyor, view dosyası içerisindeki add-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.    
-    }).catch((err) => {
-        console.log(err);
-    });
+    res.render('admin/add-product',{
+            title: 'New Product',
+            path: '/admin/add-product',
+            
+        }); //view engine 'i kullanıyor, view dosyası içerisindeki add-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.    
    
 }
 
 exports.postAddProduct = (req,res,next)=>{
-    //database kayıt işlemleri de yaptırılabilir...
+    //database kayıt işlemleri.. 
     
-    const product = new Product();
     
-    product.name = req.body.name;
-    product.price = req.body.price;
-    product.imageUrl = req.body.imageUrl;
-    product.categoryid = req.body.categoryid;
-    product.description = req.body.description;
+    const name = req.body.name;
+    const price = req.body.price;
+    const imageUrl = req.body.imageUrl;
+    //const categoryid = req.body.categoryid;
+    const description = req.body.description;
 
-
-    product.saveProduct() //promise döndürüyorr!!!!
-    .then(() => {
+    Product.create({ //promise döndürüyorr!!!! //Sequelize ile export edildi.
+        name : name,
+        price: price,
+        imageUrl: imageUrl,
+        description: description
+    })
+    .then((result) => {
+        console.log(result);   
         res.redirect('/'); //Anasayfaya yönlendirildi.
     }).catch((err) => {
         console.log(err);
-    });
-    
+    }); 
 }
 
 

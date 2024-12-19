@@ -3,40 +3,48 @@ const Category = require('../models/category');
 
 exports.getIndex = (req,res,next)=>{
     
-    const categories = Category.getAll();
-
-    Product.getAllProducts()
-    .then((products) => {
-        res.render('shop/index',
-            { 
-                title:'Shopping', 
-                products: products[0], 
-                categories : categories,
-                path : '/'
-            }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.
-    }).catch((err) => {
-        console.log(err);
-    });
-
-    
-} 
+    Product.findAll()
+        .then((products) => {
+            Category.findAll()
+                .then((categories) => {
+                    res.render('shop/index',
+                        { 
+                            title:'Shopping', 
+                            products: products, 
+                            categories : categories,
+                            path : '/'
+                        }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
 
 exports.getProducts = (req,res,next)=>{
     
-    const categories = Category.getAll();
-
-    Product.getAllProducts()
-    .then((products) => {
-        res.render('shop/products',
-            { 
-                title:'Products', 
-                products: products[0], 
-                categories : categories,
-                path : '/'
-            }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor.
-    }).catch((err) => {
-        console.log(err);
-    });
+    Product.findAll()
+        .then((products) => {
+            Category.findAll()
+                .then((categories) => {
+                    res.render('shop/products',
+                        { 
+                            title:'Products', 
+                            products: products, 
+                            categories : categories,
+                            path : '/'
+                        }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor. 
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 }
 
 exports.getProductsByCategoryId = (req,res,next)=>{

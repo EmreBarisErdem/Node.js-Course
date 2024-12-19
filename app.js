@@ -15,8 +15,8 @@ app.set('views','./views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-// const sequelize = require('./Utility/database');
 const errorController = require('./controllers/errors');
+const sequelize = require('./Utility/database');
 //body parser middleware
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
@@ -33,16 +33,24 @@ connection.execute('SELECT * FROM products')
 
 */
 
-//sequelize database bağlantısı testi...
-// sequelize
-//     .authenticate()
-//     .then(()=>{
-//         console.log('Connection has been established successfully.');
-//     })
-//     .catch (err => {
-//         console.error('Unable to connect to the database:', error);
-//     });
-  
+/*sequelize database bağlantısı testi...
+sequelize
+    .authenticate()
+    .then(()=>{
+        console.log('Connection has been established successfully.');
+    })
+    .catch (err => {
+        console.error('Unable to connect to the database:', error);
+    });
+*/
+//bütün modellerimi database'e göndermek için...
+sequelize.sync()
+.then((result) => {
+    console.log(result);
+})
+.catch((err) => {
+    console.log(err);
+});
 
 app.use(errorController.get404Page);
 // app.get('/',(req,res)=>{
@@ -83,10 +91,6 @@ app.use(errorController.get404Page);
 // app.use('/',(req,res,next)=>{
 //     res.send('<h1>hello from express.js</h1>');
 // });
-
-
-//Body Parser...........................................
-
 
 app.listen(3000,()=>{
     console.log('listening on port 3000');
