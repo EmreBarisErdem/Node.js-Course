@@ -1,3 +1,4 @@
+/*Without ORM tool
 const connection = require('../Utility/database');
 
 module.exports = class Category{
@@ -28,3 +29,23 @@ module.exports = class Category{
     }
 
 }
+*/
+//With Sequelize ORM Tool
+const {Sequelize, DataTypes} = require('sequelize');
+const sequelize = require('../Utility/database');
+
+const Category = sequelize.define('category',{
+    id:{
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true
+    },
+    name: DataTypes.STRING,
+    description:{
+        type: DataTypes.STRING,
+        allowNull:true
+    }
+});
+
+module.exports = Category;

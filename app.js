@@ -15,6 +15,7 @@ app.set('views','./views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+// const sequelize = require('./Utility/database');
 const errorController = require('./controllers/errors');
 //body parser middleware
 app.use(bodyParser.urlencoded({extended:false}));
@@ -31,8 +32,19 @@ connection.execute('SELECT * FROM products')
     });
 
 */
-app.use(errorController.get404Page);
 
+//sequelize database bağlantısı testi...
+// sequelize
+//     .authenticate()
+//     .then(()=>{
+//         console.log('Connection has been established successfully.');
+//     })
+//     .catch (err => {
+//         console.error('Unable to connect to the database:', error);
+//     });
+  
+
+app.use(errorController.get404Page);
 // app.get('/',(req,res)=>{
 //     res.send('Hello World');
 // })
