@@ -38,7 +38,8 @@ connection.execute('SELECT * FROM products')
     });
 
 */
-
+//Product ve Category arasında ilişki kurulması...
+//Product.HasOne(Category);
 Product.belongsTo(Category,{
     foreingKey: {
         allowNull:false, //categoryid boş geçilemez.
