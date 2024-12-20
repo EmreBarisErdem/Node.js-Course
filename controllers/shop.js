@@ -3,7 +3,10 @@ const Category = require('../models/category');
 
 exports.getIndex = (req,res,next)=>{
     
-    Product.findAll()
+    Product.findAll({
+        attributes:['id','name','price','imageUrl','description']
+    })
+
         .then((products) => {
             Category.findAll()
                 .then((categories) => {
@@ -26,7 +29,9 @@ exports.getIndex = (req,res,next)=>{
 
 exports.getProducts = (req,res,next)=>{
     
-    Product.findAll()
+    Product.findAll({
+        attributes: ['id','name','price','imageUrl','description']
+    })
         .then((products) => {
             Category.findAll()
                 .then((categories) => {
@@ -83,17 +88,35 @@ exports.getOrders = (req,res,next)=>{
 }
 
 exports.getProduct = (req,res,next)=>{
-    Product.getById(req.params.productid)
-        .then((product) => {
-            
+    
+    Product.findAll(
+        { 
+            attributes:['id','name','price','imageUrl','description'],       
+            where: { id: req.params.productid }
+        })
+        .then((products) => {
+                
             res.render('shop/product-detail',{
-                title: product[0][0].name,
-                product: product[0][0],
+                title: products[0].name,
+                product: products[0],
                 path: '/products'
             });
         }).catch((err) => {
             console.log(err);
         });
+    
+    //or
+    // Product.findByPk(req.params.productid)
+    //     .then((product) => {
+            
+    //         res.render('shop/product-detail',{
+    //             title: product.name,
+    //             product: product,
+    //             path: '/products'
+    //         });
+    //     }).catch((err) => {
+    //         console.log(err);
+    //     });
 }
 
 

@@ -60,6 +60,7 @@ const Product = sequelize.define('product',{
         type: DataTypes.STRING,
         allowNull:true
     }
+    
 });
 
 module.exports = Product;

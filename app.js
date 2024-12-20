@@ -17,6 +17,12 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/errors');
 const sequelize = require('./Utility/database');
+
+const Category = require('./models/category');
+const Product = require('./models/product');
+
+
+
 //body parser middleware
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
@@ -33,6 +39,14 @@ connection.execute('SELECT * FROM products')
 
 */
 
+Product.belongsTo(Category,{
+    foreingKey: {
+        allowNull:false, //categoryid boş geçilemez.
+    }
+}); //Product tablosu Category tablosuna bağlıdır.
+Category.hasMany(Product); //Category tablosu Product tablosuna bağlıdır.
+//ikisinide kullanabiliriz veya birini de kullanabilirim.
+
 /*sequelize database bağlantısı testi...
 sequelize
     .authenticate()
@@ -44,7 +58,8 @@ sequelize
     });
 */
 //bütün modellerimi database'e göndermek için...
-sequelize.sync()
+sequelize
+.sync({force:true}) //force:true yaparak her seferinde tabloları silip tekrar oluşturuyoruz.
 .then((result) => {
     console.log(result);
 })
