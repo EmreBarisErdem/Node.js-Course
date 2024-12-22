@@ -20,7 +20,7 @@ const sequelize = require('./Utility/database');
 
 const Category = require('./models/category');
 const Product = require('./models/product');
-
+const User = require('./models/user');
 
 
 //body parser middleware
@@ -48,6 +48,10 @@ Product.belongsTo(Category,{
 Category.hasMany(Product); //Category tablosu Product tablosuna bağlıdır.
 //ikisinide kullanabiliriz veya birini de kullanabilirim.
 
+Product.belongsTo(User);
+User.hasMany(Product);
+
+
 /*sequelize database bağlantısı testi...
 sequelize
     .authenticate()
@@ -60,9 +64,28 @@ sequelize
 */
 //bütün modellerimi database'e göndermek için...
 sequelize
-.sync({force:true}) //force:true yaparak her seferinde tabloları silip tekrar oluşturuyoruz.
-.then((result) => {
-    console.log(result);
+//.sync({force:true}) //force:true yaparak her seferinde tabloları silip tekrar oluşturuyoruz.
+.sync()
+.then(() => {
+    User.findByPk(1)
+        .then(user => {
+            if(!user){
+                User.create({name:'sadikturan',email:'email@gmail.com'});
+            }
+            return user;
+        })
+        .then(user => {
+            Category.count() //Category tablosunda kaç tane kayıt var onu sayar.
+                .then((count) => {
+                    if(count === 0){
+                        Category.bulkCreate([ //bulkCreate birden fazla kayıt eklemek için kullanılır.
+                            {name: 'Telefon', description:'telefon kategorisi'},
+                            {name: 'Bilgisayar', description:'bilgisayar kategorisi'},
+                            {name: 'Elektronik', description:'elektronik kategorisi'}
+                        ]);
+                    }
+                })
+        })
 })
 .catch((err) => {
     console.log(err);

@@ -20,12 +20,21 @@ exports.getProducts = (req,res,next)=>{
 
 exports.getAddProduct = (req,res,next)=>{
     // res.sendFile(path.join(__dirname,'../','views','add-product.html'));
-    res.render('admin/add-product',{
-            title: 'New Product',
-            path: '/admin/add-product',
-            
-        }); //view engine 'i kullanıyor, view dosyası içerisindeki add-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.    
-   
+    
+    Category.findAll()
+        .then((categories) => {
+            res.render('admin/add-product',{
+                title: 'New Product',
+                path: '/admin/add-product',
+                categories : categories
+            }); //view engine 'i kullanıyor, view dosyası içerisindeki add-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.    
+        
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    
+    
 }
 
 exports.postAddProduct = (req,res,next)=>{
@@ -35,17 +44,17 @@ exports.postAddProduct = (req,res,next)=>{
     const name = req.body.name;
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
-    //const categoryid = req.body.categoryid;
     const description = req.body.description;
+    const categoryid = req.body.categoryid;
 
     Product.create({ //promise döndürüyorr!!!! //Sequelize ile export edildi.
         name : name,
         price: price,
         imageUrl: imageUrl,
-        description: description
+        description: description,
+        categoryId: categoryid
     })
     .then((result) => {
-        console.log(result);   
         res.redirect('/'); //Anasayfaya yönlendirildi.
     }).catch((err) => {
         console.log(err);
@@ -95,7 +104,7 @@ exports.postEditProduct = (req,res,next)=>{
             product.price = price;
             product.imageUrl = imageUrl;
             product.description = description;
-            // product.categoryid = categoryid;
+            product.categoryId = categoryid;
             return product.save()
                 
         })
@@ -107,7 +116,7 @@ exports.postEditProduct = (req,res,next)=>{
             console.log(err);
         });
 
-
+    //or you can use the following
     // Product.Update(product)
     // .then(() => {
     //     res.redirect('/admin/products?action=edit');

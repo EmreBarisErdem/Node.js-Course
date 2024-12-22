@@ -54,17 +54,27 @@ exports.getProducts = (req,res,next)=>{
 
 exports.getProductsByCategoryId = (req,res,next)=>{
     const categoryid = req.params.categoryid;
-    const products = Product.getProductsByCategoryId(categoryid);
-    const categories = Category.getAll();
+    const modal = [];
 
-    res.render('shop/products',
-        { 
-            title:'Products', 
-            products: products, 
-            categories : categories,
-            path : '/products',
-            selectedCategory: categoryid
-        }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor.
+    Category.findAll()
+        .then(categories => {
+            modal.categories = categories;
+            const category = categories.find(i => i.id == categoryid);
+            return category.getProducts(); //getProducts sequelize tarafından otomatik olarak oluşturulmuş bir fonksiyon ve ilişkili olan productları getirir.
+        })
+        .then(products => {
+            res.render('shop/products',
+                { 
+                    title:'Products', 
+                    products: products, 
+                    categories : modal.categories, //dışarda modal diye bir dizi oluşturmuştum çünkü categoriese ulaşmam gerekiyor.
+                    selectedCategory: categoryid,
+                    path : '/products'
+                }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor.
+        })
+        .catch((err) => {
+            console.log(err);
+        });        
 }
 
 exports.getCart = (req,res,next)=>{
