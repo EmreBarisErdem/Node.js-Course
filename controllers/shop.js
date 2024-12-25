@@ -78,13 +78,61 @@ exports.getProductsByCategoryId = (req,res,next)=>{
 }
 
 exports.getCart = (req,res,next)=>{
-    const products = Product.getAllProducts();
-    res.render('shop/cart',
-        { 
-            title:'Cart', 
-            products: products, 
-            path : '/cart'
-        }); // it renders the shop/cart.pug file // title main-layout ta ki title oluyor.
+    
+
+    req.user.getCart()
+        .then(cart => {
+            return cart.getProducts() 
+                .then(products => {
+                    //console.log(products);
+                    res.render('shop/cart',
+                        { 
+                            title:'Cart', 
+                            path : '/cart',
+                            products: products
+                        }); // it renders the shop/cart.pug file // title main-layout ta ki title oluyor.
+                })
+                .catch((err) => { console.log(err);});
+        })
+        .catch((err) => {console.log(err);});
+
+}
+
+exports.postCart = (req,res,next)=>{
+    
+    const productId = req.body.productId; // 
+    let quantity = 1;
+    let userCart;
+
+        req.user.getCart() 
+            .then(cart => {
+                userCart = cart;
+                return cart.getProducts({where: {id:productId}}) //cartItem tablosunda product var mı kontrol ediliyor.
+                .then((products)=>{
+                    let product;
+                    if(products.length > 0){
+                        product = products[0]; //product[0] ile product tablosundaki productı alıyorum.
+                    }
+                    if(product){ //eğer product varsa product'ın quantity'sini arttırıyorum.
+                        quantity += product.cartItem.quantity;
+                        
+                       return product;
+                    }
+                    return Product.findByPk(productId); //eğer product yoksa product tablosundan yani database den product'ı alıyorum ve promise olarak döndürüyorum.
+                })
+                .then(product => { // product oluşturulduktan sonra cartItem tablosuna eklenmesi gerekiyor.
+                    userCart.addProduct(product,  //cartItem tablosuna ekleniyor.
+                        {through: {quantity: quantity}
+                    }); 
+                })
+                .then(() => {
+                    res.redirect('/cart');
+                })
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    
 }
 
 exports.getOrders = (req,res,next)=>{
@@ -95,6 +143,25 @@ exports.getOrders = (req,res,next)=>{
             products: products, 
             path : '/orders'
         }); // it renders the shop/orders.pug file // title main-layout ta ki title oluyor.
+}
+
+exports.postCartItemDelete = (req,res,next)=>{
+    const productId= req.body.productid;
+
+    req.user.getCart()
+        .then(cart => {
+            return cart.getProducts({where: {id: productId}});
+        })
+        .then(products => {
+            const product = products[0];
+            return product.cartItem.destroy();
+        })
+        .then(() => {
+            res.redirect('/cart');
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 }
 
 exports.getProduct = (req,res,next)=>{

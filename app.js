@@ -21,11 +21,23 @@ const sequelize = require('./Utility/database');
 const Category = require('./models/category');
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cartItem');
 
 
 //body parser middleware
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
+//User bilgisini her requestte göndermek için middleware oluşturuyoruz.
+app.use((req, res, next) => { // her requestte çalışacak olan middleware
+    User.findByPk(1) // Assuming having a user with ID 1
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+});
+
 //routes
 app.use('/admin',adminRoutes); //admin ön ekini ekleyerek adrese her defasında ekleme yapmak zorunda kalmıyoruz.
 app.use(shopRoutes);
@@ -51,6 +63,12 @@ Category.hasMany(Product); //Category tablosu Product tablosuna bağlıdır.
 Product.belongsTo(User);
 User.hasMany(Product);
 
+User.hasOne(Cart);
+Cart.belongsTo(User);
+
+Cart.belongsToMany(Product, {through: CartItem});
+Product.belongsToMany(Cart, {through: CartItem});
+
 
 /*sequelize database bağlantısı testi...
 sequelize
@@ -63,18 +81,29 @@ sequelize
     });
 */
 //bütün modellerimi database'e göndermek için...
+let _user;
 sequelize
 //.sync({force:true}) //force:true yaparak her seferinde tabloları silip tekrar oluşturuyoruz.
 .sync()
 .then(() => {
-    User.findByPk(1)
+    User.findByPk(1) // Assuming having a user with ID 1
         .then(user => {
             if(!user){
-                User.create({name:'sadikturan',email:'email@gmail.com'});
+                return User.create({name:'sadikturan',email:'email@gmail.com'});
             }
             return user;
         })
         .then(user => {
+            _user = user;
+            return user.getCart(); 
+        })
+        .then(cart => {
+            if(!cart){
+                return _user.createCart();
+            }
+            return cart;
+        })
+        .then(() => {
             Category.count() //Category tablosunda kaç tane kayıt var onu sayar.
                 .then((count) => {
                     if(count === 0){

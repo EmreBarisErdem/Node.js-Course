@@ -47,7 +47,7 @@ exports.postAddProduct = (req,res,next)=>{
     const description = req.body.description;
     const categoryid = req.body.categoryid;
 
-    Product.create({ //promise döndürüyorr!!!! //Sequelize ile export edildi.
+    req.user.createProduct({ //promise döndürüyorr!!!! //Sequelize ile export edildi.
         name : name,
         price: price,
         imageUrl: imageUrl,
@@ -55,6 +55,7 @@ exports.postAddProduct = (req,res,next)=>{
         categoryId: categoryid
     })
     .then((result) => {
+        console.log('Product Created!');
         res.redirect('/'); //Anasayfaya yönlendirildi.
     }).catch((err) => {
         console.log(err);
