@@ -37,30 +37,96 @@
 
 //     }
 // }
-const {Sequelize, DataTypes} = require('sequelize');
-const sequelize = require('../Utility/database');
 
-const Product = sequelize.define('product',{
-    id:{
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
-    },
-    name: DataTypes.STRING,
-    price:{
-        type: DataTypes.DOUBLE,
-        allowNull: false
-    },
-    imageUrl: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    description:{
-        type: DataTypes.STRING,
-        allowNull:true
-    }
+//#region Sequelize ile model oluşturulması
+
+// const {Sequelize, DataTypes} = require('sequelize');
+// const sequelize = require('../Utility/database');
+
+// const Product = sequelize.define('product',{
+//     id:{
+//         type: DataTypes.INTEGER,
+//         autoIncrement: true,
+//         allowNull: false,
+//         primaryKey: true
+//     },
+//     name: DataTypes.STRING,
+//     price:{
+//         type: DataTypes.DOUBLE,
+//         allowNull: false
+//     },
+//     imageUrl: {
+//         type: DataTypes.STRING,
+//         allowNull: false
+//     },
+//     description:{
+//         type: DataTypes.STRING,
+//         allowNull:true
+//     }
     
-});
+// });
+
+//module.exports = Product;
+//#endregion
+
+const mongodb = require('mongodb');
+const getDb = require('../Utility/database').getDb;
+
+class Product{
+    constructor(name,price,description,imageUrl){
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.imageUrl = imageUrl;
+    }
+
+    save() {
+        const db = getDb();
+
+        db.collection('products')
+            .insertOne(this)
+            .then((result) => {
+                console.log(result);
+            }).catch((err) => {
+                console.log(err);
+            });
+    }
+
+    static findAll(){
+        const db = getDb();
+        return db.collection('products')
+            .find()
+            .toArray()
+            .then((products) => {
+                return products;
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+
+    static findById(productid){
+        const db = getDb();
+        // return db.collection('products')
+        //     .find({_id: new mongodb.ObjectId(productid)})
+        //     .toArray()
+        //     .then((products) => {
+        //         return products;
+        //     })
+        //     .catch((err) => {
+        //         console.log(err);
+        //     });
+        //OR
+        return db.collection('products')
+            .findOne({_id: new mongodb.ObjectId(productid)})
+            .then((product) => {
+                return product;
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+
+}
 
 module.exports = Product;

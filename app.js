@@ -13,64 +13,67 @@ const path = require('path');
 app.set('view engine','pug'); //view engine tanımlı bir ifade... 
 app.set('views','./views'); 
 
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
+ const adminRoutes = require('./routes/admin');
+// const shopRoutes = require('./routes/shop');
+
 const errorController = require('./controllers/errors');
-const sequelize = require('./Utility/database');
+const mongoConnect = require('./Utility/database').mongoConnect;
+// const sequelize = require('./Utility/database');
 
-const Category = require('./models/category');
-const Product = require('./models/product');
-const User = require('./models/user');
-const Cart = require('./models/cart');
-const CartItem = require('./models/cartItem');
+// const Category = require('./models/category');
+// const Product = require('./models/product');
+// const User = require('./models/user');
+// const Cart = require('./models/cart');
+// const CartItem = require('./models/cartItem');
+// const Order = require('./models/order');
+// const OrderItem = require('./models/orderItem');
 
+//#region body parser middleware
 
-//body parser middleware
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
+//#endregion
+
 //User bilgisini her requestte göndermek için middleware oluşturuyoruz.
-app.use((req, res, next) => { // her requestte çalışacak olan middleware
-    User.findByPk(1) // Assuming having a user with ID 1
-        .then(user => {
-            req.user = user;
-            next();
-        })
-        .catch(err => console.log(err));
-});
+// app.use((req, res, next) => { // her requestte çalışacak olan middleware
+//     User.findByPk(1) // Assuming having a user with ID 1
+//         .then(user => {
+//             req.user = user;
+//             next();
+//         })
+//         .catch(err => console.log(err));
+// });
 
-//routes
-app.use('/admin',adminRoutes); //admin ön ekini ekleyerek adrese her defasında ekleme yapmak zorunda kalmıyoruz.
-app.use(shopRoutes);
-/*
-connection.execute('SELECT * FROM products')
-    .then((result) => {
-        console.log(result[0]);
-    }).catch((err) => {
-        console.log(err);
-    });
 
-*/
+
+//Model ve tablolar arasındaki ilişkileri tanımlamak için
 //Product ve Category arasında ilişki kurulması...
 //Product.HasOne(Category);
-Product.belongsTo(Category,{
-    foreingKey: {
-        allowNull:false, //categoryid boş geçilemez.
-    }
-}); //Product tablosu Category tablosuna bağlıdır.
-Category.hasMany(Product); //Category tablosu Product tablosuna bağlıdır.
-//ikisinide kullanabiliriz veya birini de kullanabilirim.
+// Product.belongsTo(Category,{
+//     foreingKey: {
+//         allowNull:false, //categoryid boş geçilemez.
+//     }
+// }); //Product tablosu Category tablosuna bağlıdır.
+// Category.hasMany(Product); //Category tablosu Product tablosuna bağlıdır.
+// //ikisinide kullanabiliriz veya birini de kullanabilirim.
 
-Product.belongsTo(User);
-User.hasMany(Product);
+// Product.belongsTo(User);
+// User.hasMany(Product);
 
-User.hasOne(Cart);
-Cart.belongsTo(User);
+// User.hasOne(Cart);
+// Cart.belongsTo(User);
 
-Cart.belongsToMany(Product, {through: CartItem});
-Product.belongsToMany(Cart, {through: CartItem});
+// Cart.belongsToMany(Product, {through: CartItem});
+// Product.belongsToMany(Cart, {through: CartItem});
 
+// Order.belongsTo(User);
+// User.hasMany(Order);
+
+// Order.belongsToMany(Product, {through: OrderItem});
+// Product.belongsToMany(Order, {through: OrderItem});
 
 /*sequelize database bağlantısı testi...
+
 sequelize
     .authenticate()
     .then(()=>{
@@ -80,45 +83,51 @@ sequelize
         console.error('Unable to connect to the database:', error);
     });
 */
-//bütün modellerimi database'e göndermek için...
-let _user;
-sequelize
-//.sync({force:true}) //force:true yaparak her seferinde tabloları silip tekrar oluşturuyoruz.
-.sync()
-.then(() => {
-    User.findByPk(1) // Assuming having a user with ID 1
-        .then(user => {
-            if(!user){
-                return User.create({name:'sadikturan',email:'email@gmail.com'});
-            }
-            return user;
-        })
-        .then(user => {
-            _user = user;
-            return user.getCart(); 
-        })
-        .then(cart => {
-            if(!cart){
-                return _user.createCart();
-            }
-            return cart;
-        })
-        .then(() => {
-            Category.count() //Category tablosunda kaç tane kayıt var onu sayar.
-                .then((count) => {
-                    if(count === 0){
-                        Category.bulkCreate([ //bulkCreate birden fazla kayıt eklemek için kullanılır.
-                            {name: 'Telefon', description:'telefon kategorisi'},
-                            {name: 'Bilgisayar', description:'bilgisayar kategorisi'},
-                            {name: 'Elektronik', description:'elektronik kategorisi'}
-                        ]);
-                    }
-                })
-        })
-})
-.catch((err) => {
-    console.log(err);
-});
+//#region bütün modellerimi database'e göndermek için...
+//
+// let _user;
+// sequelize
+// //.sync({force:true}) //force:true yaparak her seferinde tabloları silip tekrar oluşturuyoruz.
+// .sync()
+// .then(() => {
+//     User.findByPk(1) // Assuming having a user with ID 1
+//         .then(user => {
+//             if(!user){
+//                 return User.create({name:'sadikturan',email:'email@gmail.com'});
+//             }
+//             return user;
+//         })
+//         .then(user => {
+//             _user = user;
+//             return user.getCart(); 
+//         })
+//         .then(cart => {
+//             if(!cart){
+//                 return _user.createCart();
+//             }
+//             return cart;
+//         })
+//         .then(() => {
+//             Category.count() //Category tablosunda kaç tane kayıt var onu sayar.
+//                 .then((count) => {
+//                     if(count === 0){
+//                         Category.bulkCreate([ //bulkCreate birden fazla kayıt eklemek için kullanılır.
+//                             {name: 'Telefon', description:'telefon kategorisi'},
+//                             {name: 'Bilgisayar', description:'bilgisayar kategorisi'},
+//                             {name: 'Elektronik', description:'elektronik kategorisi'}
+//                         ]);
+//                     }
+//                 })
+//         })
+// })
+// .catch((err) => {
+//     console.log(err);
+// });
+//#endregion
+
+//routes
+app.use('/admin',adminRoutes); //admin ön ekini ekleyerek adrese her defasında ekleme yapmak zorunda kalmıyoruz.
+// app.use(shopRoutes);
 
 app.use(errorController.get404Page);
 // app.get('/',(req,res)=>{
@@ -160,9 +169,13 @@ app.use(errorController.get404Page);
 //     res.send('<h1>hello from express.js</h1>');
 // });
 
-app.listen(3000,()=>{
-    console.log('listening on port 3000');
+mongoConnect(() => {
+    app.listen(3000);
 });
+
+// app.listen(3000,()=>{
+//     console.log('listening on port 3000');
+// });
 
 
 

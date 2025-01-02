@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Category = require('../models/category');
+const { or } = require('sequelize');
 
 exports.getIndex = (req,res,next)=>{
     
@@ -136,13 +137,61 @@ exports.postCart = (req,res,next)=>{
 }
 
 exports.getOrders = (req,res,next)=>{
-    const products = Product.getAllProducts();
-    res.render('shop/orders',
-        { 
-            title:'Orders', 
-            products: products, 
-            path : '/orders'
-        }); // it renders the shop/orders.pug file // title main-layout ta ki title oluyor.
+    
+    req.user
+        .getOrders({ include : ['products']}) //include ile ilişkili olan productları da getiriyoruz.
+        .then(orders => {
+            console.log(orders);
+            res.render('shop/orders',
+                { 
+                    title:'Orders',
+                    path : '/orders',
+                    orders: orders
+
+                }); // it renders the shop/orders.pug file // title main-layout ta ki title oluyor.   
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+    }
+
+exports.postOrder = (req,res,next)=>{
+   
+    let userCart;
+
+    req.user
+    .getCart()
+        .then(cart => {
+            userCart = cart;
+            return cart.getProducts();
+        })
+        .then(products => {
+            req.user.createOrder()
+                .then(order => {    
+                    return order.addProducts(products.map(product => {
+                        product.orderItem = {
+                            quantity: product.cartItem.quantity,
+                            price: product.price
+                        };
+                        
+                        return product;
+                    }))
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .then(() => {
+            userCart.setProducts(null);
+        })
+        .then(() => {
+            res.redirect('/orders');
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
 }
 
 exports.postCartItemDelete = (req,res,next)=>{

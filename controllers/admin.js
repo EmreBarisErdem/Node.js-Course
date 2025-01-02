@@ -1,5 +1,5 @@
 const Product = require('../models/product');
-const Category = require('../models/category');
+//const Category = require('../models/category');
 
 exports.getProducts = (req,res,next)=>{
     
@@ -21,73 +21,78 @@ exports.getProducts = (req,res,next)=>{
 exports.getAddProduct = (req,res,next)=>{
     // res.sendFile(path.join(__dirname,'../','views','add-product.html'));
     
-    Category.findAll()
-        .then((categories) => {
-            res.render('admin/add-product',{
-                title: 'New Product',
-                path: '/admin/add-product',
-                categories : categories
-            }); //view engine 'i kullanıyor, view dosyası içerisindeki add-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.    
-        
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    res.render('admin/add-product',{
+        title: 'New Product',
+        path: '/admin/add-product',
+    }); //view engine 'i kullanıyor, view dosyası içerisindeki add-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.    
+
     
     
 }
 
 exports.postAddProduct = (req,res,next)=>{
-    //database kayıt işlemleri.. 
+   
     
     
     const name = req.body.name;
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
-    const categoryid = req.body.categoryid;
 
-    req.user.createProduct({ //promise döndürüyorr!!!! //Sequelize ile export edildi.
-        name : name,
-        price: price,
-        imageUrl: imageUrl,
-        description: description,
-        categoryId: categoryid
-    })
-    .then((result) => {
-        console.log('Product Created!');
-        res.redirect('/'); //Anasayfaya yönlendirildi.
-    }).catch((err) => {
-        console.log(err);
-    }); 
+    const product = new Product( name, price, imageUrl, description);
+
+    product.save()
+        .then((result) => {
+            res.redirect('/admin/products'); //Anasayfaya yönlendirildi.
+        }).catch((err) => {
+            console.log(err);
+        }); 
 }
 
 exports.getEditProduct = (req,res,next)=>{
     // res.sendFile(path.join(__dirname,'../','views','add-product.html'));
-    
-    Product.findByPk(req.params.productid)
-        .then((product) => {
-            if(!product){
-                return res.redirect('/');
-            }
-            Category.findAll()
-                .then((categories) => {
-                    res.render('admin/edit-product',
-                        {
-                            title: 'Edit Product',
-                            path: '/admin/products',
-                            product: product,
-                            categories: categories
-                        });
-                }).catch((err) => {
-                    console.log(err);
-                });
+    //#region 
+
+    // Product.findByPk(req.params.productid)
+    //     .then((product) => {
+    //         if(!product){
+    //             return res.redirect('/');
+    //         }
+    //         Category.findAll()
+    //             .then((categories) => {
+    //                 res.render('admin/edit-product',
+    //                     {
+    //                         title: 'Edit Product',
+    //                         path: '/admin/products',
+    //                         product: product,
+    //                         categories: categories
+    //                     });
+    //             }).catch((err) => {
+    //                 console.log(err);
+    //             });
             
-        }).catch((err) => {
+    //     }).catch((err) => {
+    //         console.log(err);
+    //     });
+    //view engine 'i kullanıyor, view dosyası içerisindeki edit-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.
+   //#endregion
+    
+    Product.findById(req.params.productid)
+        .then(product => {
+            console.log(product);
+            res.render('admin/edit-product',
+                {
+                    title: 'Edit Product',
+                    path: '/admin/products',
+                    product: product,
+                });
+        })
+        .catch(err => {
             console.log(err);
         });
+
    
-     //view engine 'i kullanıyor, view dosyası içerisindeki edit-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.
+
 }
 
 exports.postEditProduct = (req,res,next)=>{
