@@ -73,18 +73,28 @@ const mongodb = require('mongodb');
 const getDb = require('../Utility/database').getDb;
 
 class Product{
-    constructor(name,price,description,imageUrl){
+    constructor(name,price,description,imageUrl,id, userId){
         this.name = name;
         this.price = price;
         this.description = description;
         this.imageUrl = imageUrl;
+        this._id = id ? new mongodb.ObjectId(id) : null;
+        this.userId = userId;
     }
 
     save() {
-        const db = getDb();
+        let db = getDb();
 
-        db.collection('products')
+        if(this._id){
+            db = db.collection('products')
+            .updateOne({_id: this._id},{$set: this});
+        }
+        else{
+            db = db.collection('products')
             .insertOne(this)
+        }
+
+        return db
             .then((result) => {
                 console.log(result);
             }).catch((err) => {
@@ -125,6 +135,19 @@ class Product{
             .catch((err) => {
                 console.log(err);
             });
+    }
+
+    static deleteById(productid){
+        const db = getDb();
+        return db.collection()
+                .deleteOne({_id: new mongodb.ObjectId(productid)})
+                .then((result) => {
+                    console.log('Product Has Been Deleted!');
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
     }
 
 }

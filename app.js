@@ -22,7 +22,7 @@ const mongoConnect = require('./Utility/database').mongoConnect;
 
 // const Category = require('./models/category');
 // const Product = require('./models/product');
-// const User = require('./models/user');
+ const User = require('./models/user');
 // const Cart = require('./models/cart');
 // const CartItem = require('./models/cartItem');
 // const Order = require('./models/order');
@@ -34,7 +34,20 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
 //#endregion
 
-//User bilgisini her requestte göndermek için middleware oluşturuyoruz.
+//#region user bilgisini her requestte göndermek için middleware oluşturuyoruz.
+
+app.use((req,res,next) => { 
+    User.findByName('sadikturan')
+        .then(user => {
+            req.user = new User(user.name,user.email,user._id); 
+            next();
+        })
+        .catch(err => console.log(err));
+});
+//#endregion
+
+//#region User bilgisini her requestte göndermek için middleware oluşturuyoruz.
+
 // app.use((req, res, next) => { // her requestte çalışacak olan middleware
 //     User.findByPk(1) // Assuming having a user with ID 1
 //         .then(user => {
@@ -43,7 +56,7 @@ app.use(express.static(path.join(__dirname,'public')));
 //         })
 //         .catch(err => console.log(err));
 // });
-
+//#endregion
 
 
 //Model ve tablolar arasındaki ilişkileri tanımlamak için
@@ -170,7 +183,26 @@ app.use(errorController.get404Page);
 // });
 
 mongoConnect(() => {
-    app.listen(3000);
+
+    User.findByName('sadikturan')
+        .then(user => {
+            if(!user){
+                user = new User({name:'sadikturan',email:'email@gmail.com'});
+                return user.save();
+            }
+            return user;
+        }
+    )
+    .then((user) => {
+        console.log(user);
+        app.listen(3000);
+    })
+    .catch(err => {
+        console.log(err);
+    });
+
+
+
 });
 
 // app.listen(3000,()=>{

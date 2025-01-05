@@ -39,7 +39,7 @@ exports.postAddProduct = (req,res,next)=>{
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
 
-    const product = new Product( name, price, imageUrl, description);
+    const product = new Product( name, price,description, imageUrl,null, req.user._id); //req.user._id ile userId bilgisini app.js de tanımladığımız middleware ile alabiliyoruz.
 
     product.save()
         .then((result) => {
@@ -102,25 +102,18 @@ exports.postEditProduct = (req,res,next)=>{
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
-    const categoryid = req.body.categoryid
- 
-    Product.findByPk(id)
-        .then((product) => {
-            product.name = name;
-            product.price = price;
-            product.imageUrl = imageUrl;
-            product.description = description;
-            product.categoryId = categoryid;
-            return product.save()
-                
-        })
-        .then(result => {
-            console.log('Product Updated!');
+    //const categoryid = req.body.categoryid
+
+    const product = new Product(name, price, description,imageUrl, id, req.user._id);
+
+    product.save()
+        .then((result) => {
             res.redirect('/admin/products?action=edit');
-        })
-        .catch((err) => {
+        }).catch((err) => {
             console.log(err);
         });
+ 
+    
 
     //or you can use the following
     // Product.Update(product)
@@ -136,12 +129,9 @@ exports.postDeleteProduct = (req,res,next) => {
 
     const id = req.body.productid;
 
-    Product.findByPk(id)
-        .then((product) => {
-            return product.destroy();
-        })
+    Product.deleteById(id)
         .then(() => {
-            console.log('Product Deleted!');
+            console.log('Product Has Been Deleted!');
             res.redirect('/admin/products?action=delete'); // asenkron olduğu için burada redirect yapılmalı. Çünkü catch'den sonra aşağıda redirect yapılırsa işlem tamamlanmadan sayfaya yönlendirilir.
         })
         .catch((err) => {
