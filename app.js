@@ -187,7 +187,7 @@ mongoConnect(() => {
     User.findByName('sadikturan')
         .then(user => {
             if(!user){
-                user = new User({name:'sadikturan',email:'email@gmail.com'});
+                user = new User('sadikturan', 'email@gmail.com');
                 return user.save();
             }
             return user;
