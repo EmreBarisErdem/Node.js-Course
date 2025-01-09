@@ -1,4 +1,5 @@
 /*Without ORM tool
+
 const connection = require('../Utility/database');
 
 module.exports = class Category{
@@ -30,22 +31,100 @@ module.exports = class Category{
 
 }
 */
-//With Sequelize ORM Tool
-const {Sequelize, DataTypes} = require('sequelize');
-const sequelize = require('../Utility/database');
 
-const Category = sequelize.define('category',{
-    id:{
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
-    },
-    name: DataTypes.STRING,
-    description:{
-        type: DataTypes.STRING,
-        allowNull:true
+
+//#region With Sequelize ORM Tool
+
+// const {Sequelize, DataTypes} = require('sequelize');
+// const sequelize = require('../Utility/database');
+
+// const Category = sequelize.define('category',{
+//     id:{
+//         type: DataTypes.INTEGER,
+//         autoIncrement: true,
+//         allowNull: false,
+//         primaryKey: true
+//     },
+//     name: DataTypes.STRING,
+//     description:{
+//         type: DataTypes.STRING,
+//         allowNull:true
+//     }
+// });
+
+// module.exports = Category;
+
+//#endregion
+
+//#region With MongoDB
+const mongodb = require('mongodb');
+const getDb = require('../Utility/database').getDb;
+
+class Category{
+    constructor(name,description,id){
+        this.name = name;
+        this.description = description;
+        this._id = id ? new mongodb.ObjectId(id) : null;
     }
-});
+
+    save(){
+        let db = getDb();
+
+        if(this._id){
+            db = db.collection('categories')
+            .updateOne({_id: this._id},{$set: this});
+        }
+        else{
+            db = db
+                .collection('categories')
+                .insertOne(this)
+        }
+
+        return db
+            .then((result) => {
+                console.log(result);   
+            }).catch((err) => {
+                console.log(err);
+            });
+    }
+
+    static findAll(){
+        const db = getDb();
+
+        return db.collection('categories')
+            .find()
+            .toArray()
+            .then((categories) => {
+                return categories;
+            })
+            .catch((err) => {console.log(err)});
+            
+    }
+
+    static findById(categoryid){
+        const db = getDb();
+
+        return db.collection('categories')
+            .findOne({_id: new mongodb.ObjectId(categoryid)})
+            .then((category) => {
+                return category;   
+            })
+            .catch((err) => {console.log(err)});
+    }
+
+    static deleteById(categoryid){
+
+        const db = getDb();
+
+        return db.collection('categories')
+            .deleteOne({_id: new mongodb.ObjectId(categoryid)})
+            .then(() => {
+                console.log("Product has been deleted!");
+            })
+            .catch((err) => {console.log(err)});
+    }
+}
 
 module.exports = Category;
+
+//#endregion

@@ -1,5 +1,5 @@
+const Category = require('../models/category');
 const Product = require('../models/product');
-//const Category = require('../models/category');
 
 exports.getProducts = (req,res,next)=>{
     
@@ -158,8 +158,54 @@ exports.postDeleteProduct = (req,res,next) => {
 
 }
 
+exports.getCategories = (req,res,next) => {
+    
+    Category.findAll()
+        .then(categories => {
+            res.render('admin/categories',
+            {
+                title:'Categories', 
+                path : '/admin/categories',
+                categories: categories,
+                action: req.query.action
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+}
+
+exports.getAddCategory = (req,res,next) => {
+
+    res.render('admin/add-category',{
+        title: 'New Category',
+        path: '/admin/add-category'
+    });
 
 
+}
+
+exports.postAddCategory = (req,res,next) => {
+
+    const name = req.body.name;
+    const description = req.body.description;
+
+    const category = new Category(name,description,null);
+
+    category.save()
+        .then(result => {
+
+            console.log(result);
+
+            res.redirect('/admin/categories?action=create');
+            
+        }).catch(err => console.log(err));
+
+    
+
+
+}
 
 
 

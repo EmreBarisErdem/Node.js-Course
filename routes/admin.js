@@ -20,8 +20,12 @@ router.get('/products/:productid',adminController.getEditProduct);
 // /admin/products => POST
 router.post('/products',adminController.postEditProduct);
 
-
 router.post('/delete-product',adminController.postDeleteProduct);
 
+router.get('/add-category',adminController.getAddCategory);
+
+router.post('/add-category',adminController.postAddCategory);
+
+router.get('/categories',adminController.getCategories);
 
 module.exports = router;
