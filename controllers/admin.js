@@ -207,8 +207,35 @@ exports.postAddCategory = (req,res,next) => {
 
 }
 
+exports.getEditCategory = (req,res,next) => {
 
+    Category.findById(req.params.categoryid)
+        .then((category) => {
+            res.render('admin/edit-category',{
+                title: 'Edit Category',
+                category : category,
+                path: '/admin/categories'
+            });
+        }).catch((err) => {
+            console.log(err);
+        });
+}
 
+exports.postEditCategory = (req,res,next) => {
+
+    const name = req.body.name
+    const description = req.body.description
+    const id = req.body.id
+
+    const category = new Category(name,description,id)
+
+    category.save()
+        .then(() => {
+            res.redirect('/admin/categories?action=edit')
+        }).catch((err) => {
+            console.log(err);
+        });
+}
 
 
 
