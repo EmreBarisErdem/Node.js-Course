@@ -1,16 +1,12 @@
 const Product = require('../models/product');
 const Category = require('../models/category');
-const { or } = require('sequelize');
 
 exports.getIndex = (req,res,next)=>{
     
-    Product.findAll({
-        attributes:['id','name','price','imageUrl','description']
-    })
-
+    Product.findAll()
         .then((products) => {
             Category.findAll()
-                .then((categories) => {
+                .then(categories => {
                     res.render('shop/index',
                         { 
                             title:'Shopping', 
@@ -18,9 +14,6 @@ exports.getIndex = (req,res,next)=>{
                             categories : categories,
                             path : '/'
                         }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
-                })
-                .catch((err) => {
-                    console.log(err);
                 });
         })
         .catch((err) => {
@@ -30,9 +23,7 @@ exports.getIndex = (req,res,next)=>{
 
 exports.getProducts = (req,res,next)=>{
     
-    Product.findAll({
-        attributes: ['id','name','price','imageUrl','description']
-    })
+    Product.findAll()
         .then((products) => {
             Category.findAll()
                 .then((categories) => {
@@ -43,9 +34,6 @@ exports.getProducts = (req,res,next)=>{
                             categories : categories,
                             path : '/'
                         }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor. 
-                })
-                .catch((err) => {
-                    console.log(err);
                 });
         })
         .catch((err) => {
@@ -60,8 +48,10 @@ exports.getProductsByCategoryId = (req,res,next)=>{
     Category.findAll()
         .then(categories => {
             modal.categories = categories;
-            const category = categories.find(i => i.id == categoryid);
-            return category.getProducts(); //getProducts sequelize tarafından otomatik olarak oluşturulmuş bir fonksiyon ve ilişkili olan productları getirir.
+            return Product.findByCategoryId(categoryid);
+
+            // const category = categories.find(i => i.id == categoryid);
+            // return category.getProducts(); //getProducts sequelize tarafından otomatik olarak oluşturulmuş bir fonksiyon ve ilişkili olan productları getirir.
         })
         .then(products => {
             res.render('shop/products',

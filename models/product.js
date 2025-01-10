@@ -73,13 +73,15 @@ const mongodb = require('mongodb');
 const getDb = require('../Utility/database').getDb;
 
 class Product{
-    constructor(name,price,description,imageUrl,id, userId){
+    constructor(name,price,description,imageUrl,id, userId, categories){
         this.name = name;
         this.price = price;
         this.description = description;
         this.imageUrl = imageUrl;
         this._id = id ? new mongodb.ObjectId(id) : null;
         this.userId = userId;
+        this.categories = (categories && !Array.isArray(categories) ? Array.of(categories): categories); //Eğer productin categorisinin null olmadığı veya birden fazla categorisi olmadığı durumda yani tek bir kategori seçilmiş ise onu diziye çeviren ki kontrol mekanizması.  
+
     }
 
     save() {
@@ -148,6 +150,18 @@ class Product{
                     console.log(err);
                 });
 
+    }
+
+    static findByCategoryId(categoryid){
+        const db = getDb();
+
+        return db.collection('products')
+            .find({categories: categoryid})
+            .toArray()
+            .then(products => {
+                return products;
+            })
+            .catch(err => console.log(err))
     }
 
 }

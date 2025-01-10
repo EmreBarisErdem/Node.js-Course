@@ -13,8 +13,8 @@ const path = require('path');
 app.set('view engine','pug'); //view engine tanımlı bir ifade... 
 app.set('views','./views'); 
 
- const adminRoutes = require('./routes/admin');
-// const shopRoutes = require('./routes/shop');
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/errors');
 const mongoConnect = require('./Utility/database').mongoConnect;
@@ -140,7 +140,7 @@ sequelize
 
 //routes
 app.use('/admin',adminRoutes); //admin ön ekini ekleyerek adrese her defasında ekleme yapmak zorunda kalmıyoruz.
-// app.use(shopRoutes);
+app.use(shopRoutes);
 
 app.use(errorController.get404Page);
 // app.get('/',(req,res)=>{
