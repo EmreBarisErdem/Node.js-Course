@@ -137,24 +137,37 @@ exports.postCart = (req,res,next)=>{
 exports.getOrders = (req,res,next)=>{
     
     //#region sequelize ile...
+    // req.user
+    //     .getOrders({ include : ['products']}) //include ile ilişkili olan productları da getiriyoruz.
+    //     .then(orders => {
+    //         console.log(orders);
+    //         res.render('shop/orders',
+    //             { 
+    //                 title:'Orders',
+    //                 path : '/orders',
+    //                 orders: orders
+
+    //             }); // it renders the shop/orders.pug file // title main-layout ta ki title oluyor.   
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });
+    //#endregion
+
     req.user
-        .getOrders({ include : ['products']}) //include ile ilişkili olan productları da getiriyoruz.
+        .getOrders()
         .then(orders => {
-            console.log(orders);
             res.render('shop/orders',
                 { 
                     title:'Orders',
                     path : '/orders',
                     orders: orders
 
-                }); // it renders the shop/orders.pug file // title main-layout ta ki title oluyor.   
+                });
         })
         .catch((err) => {
             console.log(err);
         });
-    //#endregion
-
-
 
 }
 
