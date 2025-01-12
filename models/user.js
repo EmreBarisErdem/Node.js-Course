@@ -128,6 +128,22 @@ class User{
                 });
     }
 
+    deleteCartItem(productid){
+
+        // cart taki ürünlerden productId'si silinecek productid olmayan ürünleri geri getirir.
+        const cartItems = this.cart.items.filter(item => {
+            return item.productId.toString() !== productid.toString()
+            
+        });
+
+        const db = getDb();
+
+        return db.collection('users')
+                    .updateOne(
+                        { _id : new mongodb.ObjectId(this._id) },
+                        { $set : { cart: { items: cartItems } } },
+                    )
+    }
 
 
 }

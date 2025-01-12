@@ -122,7 +122,7 @@ exports.postCart = (req,res,next)=>{
             //#endregion
     
     const productId = req.body.productId;
-    
+
     Product.findById(productId)
         .then(product => {
             return req.user.addToCart(product);
@@ -152,7 +152,7 @@ exports.getOrders = (req,res,next)=>{
             console.log(err);
         });
 
-    }
+}
 
 exports.postOrder = (req,res,next)=>{
    
@@ -193,22 +193,36 @@ exports.postOrder = (req,res,next)=>{
 }
 
 exports.postCartItemDelete = (req,res,next)=>{
-    const productId= req.body.productid;
+    //#region Sequielize ile...
+    
+    // const productId= req.body.productid;
 
-    req.user.getCart()
-        .then(cart => {
-            return cart.getProducts({where: {id: productId}});
-        })
-        .then(products => {
-            const product = products[0];
-            return product.cartItem.destroy();
-        })
-        .then(() => {
-            res.redirect('/cart');
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    // req.user.getCart()
+    //     .then(cart => {
+    //         return cart.getProducts({where: {id: productId}});
+    //     })
+    //     .then(products => {
+    //         const product = products[0];
+    //         return product.cartItem.destroy();
+    //     })
+    //     .then(() => {
+    //         res.redirect('/cart');
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });
+
+        //#endregion
+
+        const productid = req.body.productid;
+
+        req.user
+            .deleteCartItem(productid)
+            .then(()=>{
+                res.redirect('/cart');
+            });
+
+
 }
 
 exports.getProduct = (req,res,next)=>{
