@@ -25,9 +25,11 @@ const mongodb = require('mongodb');
 const getDb = require('../Utility/database').getDb;
 
 class User{
-    constructor(name,email,id){
+    constructor(name,email,cart,id){
         this.name = name;
         this.email = email;
+        this.cart = cart ? cart : {};
+        this.cart.items = cart ? cart.items : [] ;
         this._id = id ? new mongodb.ObjectId(id) : null;
     }
 
@@ -37,6 +39,42 @@ class User{
         return db.collection('users')
                 .insertOne(this);
 
+    }
+
+    getCart(){
+        // return this.cart.items
+    }
+
+    addToCart(product){
+        
+        const index = this.cart.items.findIndex(cp=> {
+            cp.productId.toString() === product._id.toString();
+        })
+        
+        const updatedCartItems = [...this.cart.items];
+        let itemQuantity = 1;
+
+        //cart zaten eklenmek istenen product varsa: quantity'i arttır.
+        if(index >= 0){
+            itemQuantity = this.cart.items[index].quantity + 1;
+            updatedCartItems[index].quantity = itemQuantity;
+        } 
+        else{
+            // updatedCartItems'a yeni bir eleman ekle
+            updatedCartItems.push({
+                productId: new mongodb.ObjectId(product._id),
+                quantity: itemQuantity
+            });
+        }
+
+        const db = getDb();
+
+        return db.collection('users')
+            .updateOne(
+                { _id: new mongodb.ObjectId(this._id) },
+                { $set : {cart: {items: updatedCartItems } } },
+        );
+            
     }
 
     static findById(userid){
@@ -67,6 +105,9 @@ class User{
                     console.log(err);
                 });
     }
+
+
+
 }
 
 
