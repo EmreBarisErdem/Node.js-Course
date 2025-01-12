@@ -136,6 +136,7 @@ exports.postCart = (req,res,next)=>{
 
 exports.getOrders = (req,res,next)=>{
     
+    //#region sequelize ile...
     req.user
         .getOrders({ include : ['products']}) //include ile ilişkili olan productları da getiriyoruz.
         .then(orders => {
@@ -151,44 +152,55 @@ exports.getOrders = (req,res,next)=>{
         .catch((err) => {
             console.log(err);
         });
+    //#endregion
+
+
 
 }
 
 exports.postOrder = (req,res,next)=>{
-   
-    let userCart;
+   //#region Sequelize ile...
+    // let userCart;
+
+    // req.user
+    // .getCart()
+    //     .then(cart => {
+    //         userCart = cart;
+    //         return cart.getProducts();
+    //     })
+    //     .then(products => {
+    //         req.user.createOrder()
+    //             .then(order => {    
+    //                 return order.addProducts(products.map(product => {
+    //                     product.orderItem = {
+    //                         quantity: product.cartItem.quantity,
+    //                         price: product.price
+    //                     };
+                        
+    //                     return product;
+    //                 }))
+    //             })
+    //             .catch((err) => {
+    //                 console.log(err);
+    //             });
+    //     })
+    //     .then(() => {
+    //         userCart.setProducts(null);
+    //     })
+    //     .then(() => {
+    //         res.redirect('/orders');
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });
+        //#endregion
 
     req.user
-    .getCart()
-        .then(cart => {
-            userCart = cart;
-            return cart.getProducts();
+        .addOrder()
+        .then(()=>{
+            res.redirect('/cart');
         })
-        .then(products => {
-            req.user.createOrder()
-                .then(order => {    
-                    return order.addProducts(products.map(product => {
-                        product.orderItem = {
-                            quantity: product.cartItem.quantity,
-                            price: product.price
-                        };
-                        
-                        return product;
-                    }))
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-        })
-        .then(() => {
-            userCart.setProducts(null);
-        })
-        .then(() => {
-            res.redirect('/orders');
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+        .catch(err=>console.log(err));
 
 }
 
