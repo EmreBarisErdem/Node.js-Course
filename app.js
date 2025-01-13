@@ -17,7 +17,8 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/errors');
-const mongoConnect = require('./Utility/database').mongoConnect;
+const mongoose = require('mongoose');
+//onst mongoConnect = require('./Utility/database').mongoConnect;
 // const sequelize = require('./Utility/database');
 
 // const Category = require('./models/category');
@@ -36,15 +37,15 @@ app.use(express.static(path.join(__dirname,'public')));
 
 //#region user bilgisini her requestte göndermek için middleware oluşturuyoruz.
 
-app.use((req,res,next) => { 
-    User.findByName('sadikturan')
-        .then(user => {
-            req.user = new User(user.name, user.email, user.cart, user._id);
-            console.log(req.user) 
-            next();
-        })
-        .catch(err => console.log(err));
-});
+// app.use((req,res,next) => { 
+//     User.findByName('sadikturan')
+//         .then(user => {
+//             req.user = new User(user.name, user.email, user.cart, user._id);
+//             console.log(req.user) 
+//             next();
+//         })
+//         .catch(err => console.log(err));
+// });
 //#endregion
 
 //#region User bilgisini her requestte göndermek için middleware oluşturuyoruz.
@@ -183,32 +184,38 @@ app.use(errorController.get404Page);
 //     res.send('<h1>hello from express.js</h1>');
 // });
 
-mongoConnect(() => {
+//#region MongoDb Connection
+// mongoConnect(() => {
 
-    User.findByName('sadikturan')
-        .then(user => {
-            if(!user){
-                user = new User('sadikturan', 'email@gmail.com');
-                return user.save();
-            }
-            return user;
-        }
-    )
-    .then((user) => {
-        console.log(user);
-        app.listen(3000);
-    })
-    .catch(err => {
-        console.log(err);
-    });
+//     User.findByName('sadikturan')
+//         .then(user => {
+//             if(!user){
+//                 user = new User('sadikturan', 'email@gmail.com');
+//                 return user.save();
+//             }
+//             return user;
+//         }
+//     )
+//     .then((user) => {
+//         console.log(user);
+//         app.listen(3000);
+//     })
+//     .catch(err => {
+//         console.log(err);
+//     });
 
 
 
-});
-
+// });
+//#endregion
 // app.listen(3000,()=>{
 //     console.log('listening on port 3000');
 // });
 
-
+mongoose.connect('mongodb://localhost/node-app') //mongodb+srv://erdememrebaris:09Haz1992.@cluster0.mgw1v.mongodb.net/node-app Atlasta bağlanırken
+    .then(()=>{
+        console.log('Connected to mongoDb');
+        app.listen(3000);
+    })
+    .catch(err => console.log(err));
 
