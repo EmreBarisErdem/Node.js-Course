@@ -72,7 +72,39 @@ exports.getProducts = (req,res,next)=>{
     //#endregion
     
     //#region Mongoose ile...
-    Product.find()
+
+    //Query Operatörleri....
+
+    //eq (equal)
+    //ne (not equal)
+    //gt (greater than)
+    //gte (greater than or equal)
+    //lt (less than)
+    //lte (less than or equal)
+    //in 
+    //nin (not in)
+
+    Product
+        .find()
+        // .find({price: {$eq: 2000}})
+        // .find({price: {$ne: 2000}})
+        // .find({price: {$gt: 2000}})
+        // .find({price: {$gte: 2000}})
+        // .find({price: {$lt: 2000}})
+        // .find({price: {$lte: 2000}})
+        // .find({price: {$in: [1000,2000,3000]}})
+        // .find({price: {$gte: 1000, $lte: 2000}})
+        // .or([{price: {$gte: 2000}, name: 'Samsung S6'}])
+       
+        // starts with
+        // .find({name: /^Samsung/})
+
+        // ends with
+        // .find({name: /Samsung$/})
+
+        // contains
+        //find({name:/.*Samsung.*/})
+
         .then((products) => {
 
             res.render('shop/products',
@@ -278,7 +310,7 @@ exports.postOrder = (req,res,next)=>{
 }
 
 exports.postCartItemDelete = (req,res,next)=>{
-    //#region Sequielize ile...
+    //#region Sequelize ile...
     
     // const productId= req.body.productid;
 
@@ -326,7 +358,7 @@ exports.getProduct = (req,res,next)=>{
                 console.log(err);
             });
         
-    //or
+    //or with sequelize...
     // Product.findByPk(req.params.productid)
     //     .then((product) => {
             
