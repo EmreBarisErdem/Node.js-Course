@@ -71,8 +71,6 @@
 
 //#region MongoDB ile Product Modeli
 
-
-
 // const mongodb = require('mongodb');
 // const getDb = require('../Utility/database').getDb;
 

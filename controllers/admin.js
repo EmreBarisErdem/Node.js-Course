@@ -32,21 +32,37 @@ exports.getAddProduct = (req,res,next)=>{
 
 exports.postAddProduct = (req,res,next)=>{
    
-    
-    
     const name = req.body.name;
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
 
-    const product = new Product( name, price,description, imageUrl,null, req.user._id); //req.user._id ile userId bilgisini app.js de tanımladığımız middleware ile alabiliyoruz.
+    //MongoDB ile...
+    // const product = new Product( name, price,description, imageUrl,null, req.user._id); //req.user._id ile userId bilgisini app.js de tanımladığımız middleware ile alabiliyoruz.
+    const product = new Product({
+        name: name,
+        price: price,
+        imageUrl: imageUrl,
+        description: description
 
+    })
+
+    //Mongoose ile... https://mongoosejs.com/docs/guides.html
     product.save()
-        .then((result) => {
+        .then(() => {
             res.redirect('/admin/products'); //Anasayfaya yönlendirildi.
         }).catch((err) => {
             console.log(err);
         }); 
+
+
+    //Mongo DB ile...
+    // product.save()
+    //     .then((result) => {
+    //         res.redirect('/admin/products'); //Anasayfaya yönlendirildi.
+    //     }).catch((err) => {
+    //         console.log(err);
+    //     }); 
 }
 
 exports.getEditProduct = (req,res,next)=>{
