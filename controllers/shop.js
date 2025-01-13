@@ -2,28 +2,69 @@ const Product = require('../models/product');
 const Category = require('../models/category');
 
 exports.getIndex = (req,res,next)=>{
-    
-    Product.findAll()
-        .then((products) => {
-            Category.findAll()
-                .then(categories => {
-                    res.render('shop/index',
-                        { 
-                            title:'Shopping', 
-                            products: products, 
-                            categories : categories,
-                            path : '/'
-                        }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
-                });
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    //#region MongoDB ile
+    // Product.findAll()
+    //     .then((products) => {
+    //         Category.findAll()
+    //             .then(categories => {
+    //                 res.render('shop/index',
+    //                     { 
+    //                         title:'Shopping', 
+    //                         products: products, 
+    //                         categories : categories,
+    //                         path : '/'
+    //                     }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
+    //             });
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });
+
+    //#endregion
+    //#region Mongoose ile...
+    Product.find()
+    .then((products) => {
+        Category.findAll()
+            .then(categories => {
+                res.render('shop/index',
+                    { 
+                        title:'Shopping', 
+                        products: products, 
+                        categories : categories,
+                        path : '/'
+                    }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
+            });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+    //#endregion
+
 }
 
 exports.getProducts = (req,res,next)=>{
+    //#region MongoDb ile...
+    // Product.findAll()
+    // .then((products) => {
+    //     Category.findAll()
+    //         .then((categories) => {
+    //             res.render('shop/products',
+    //                 { 
+    //                     title:'Products', 
+    //                     products: products, 
+    //                     categories : categories,
+    //                     path : '/'
+    //                 }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor. 
+    //         });
+    // })
+    // .catch((err) => {
+    //     console.log(err);
+    // });
+
+    //#endregion
     
-    Product.findAll()
+    //#region Mongoose ile...
+    Product.find()
         .then((products) => {
             Category.findAll()
                 .then((categories) => {
@@ -39,6 +80,7 @@ exports.getProducts = (req,res,next)=>{
         .catch((err) => {
             console.log(err);
         });
+    //#endregion
 }
 
 exports.getProductsByCategoryId = (req,res,next)=>{

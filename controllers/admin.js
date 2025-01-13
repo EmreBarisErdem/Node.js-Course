@@ -3,7 +3,26 @@ const Product = require('../models/product');
 
 exports.getProducts = (req,res,next)=>{
     
-    Product.findAll()
+    //#region MongoDB ile...
+    // Product.findAll()
+    // .then((products) => {
+    //     res.render('admin/products',
+    //         { 
+    //             title:'Admin Products', 
+    //             products: products,
+    //             path : '/admin/products',
+    //             action: req.query.action //Query String ile postEditProduct Methodundan geliyor.
+    //         });
+    // }).catch((err) => {
+    //     console.log(err);
+    // });
+    //#endregion
+    
+    //#region Mongoose ile...
+    Product.find()
+    //.limit(10) //10 adet getir.
+    //.sort({price:1}) //price ' e göre sıralanmış bir şekilde getirir.
+    //.select({name:1,price:1}) //sadece name ve price sütunlarını getirir.
     .then((products) => {
         res.render('admin/products',
             { 
@@ -15,7 +34,8 @@ exports.getProducts = (req,res,next)=>{
     }).catch((err) => {
         console.log(err);
     });
-    
+    //#endregion
+
 }
 
 exports.getAddProduct = (req,res,next)=>{
