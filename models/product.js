@@ -197,6 +197,4 @@ const productSchema = mongoose.Schema({
 
 module.exports = mongoose.model('Product', productSchema); // database de products
 
-
-
 //#endregion

@@ -24,16 +24,24 @@ exports.getIndex = (req,res,next)=>{
     //#region Mongoose ile...
     Product.find()
     .then((products) => {
-        Category.findAll()
-            .then(categories => {
-                res.render('shop/index',
-                    { 
-                        title:'Shopping', 
-                        products: products, 
-                        categories : categories,
-                        path : '/'
-                    }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
+
+        res.render('shop/index',
+            { 
+                title:'Shopping', 
+                products: products, 
+                path : '/'
             });
+
+        // Category.findAll()
+        //     .then(categories => {
+        //         res.render('shop/index',
+        //             { 
+        //                 title:'Shopping', 
+        //                 products: products, 
+        //                 categories : categories,
+        //                 path : '/'
+        //             }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
+        //     });
     })
     .catch((err) => {
         console.log(err);
@@ -66,16 +74,26 @@ exports.getProducts = (req,res,next)=>{
     //#region Mongoose ile...
     Product.find()
         .then((products) => {
-            Category.findAll()
-                .then((categories) => {
-                    res.render('shop/products',
-                        { 
-                            title:'Products', 
-                            products: products, 
-                            categories : categories,
-                            path : '/'
-                        }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor. 
-                });
+
+            res.render('shop/products',
+                { 
+                    title:'Products', 
+                    products: products, 
+                    path : '/'
+                }); 
+                   
+
+            // Category.findAll()
+            //     .then((categories) => {
+            //         res.render('shop/products',
+            //             { 
+            //                 title:'Products', 
+            //                 products: products, 
+            //                 categories : categories,
+            //                 path : '/'
+            //             }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor. 
+            //     });
+
         })
         .catch((err) => {
             console.log(err);
@@ -294,22 +312,20 @@ exports.postCartItemDelete = (req,res,next)=>{
 
 exports.getProduct = (req,res,next)=>{
     
-    Product.findAll(
-        { 
-            attributes:['id','name','price','imageUrl','description'],       
-            where: { id: req.params.productid }
-        })
-        .then((products) => {
-                
-            res.render('shop/product-detail',{
-                title: products[0].name,
-                product: products[0],
-                path: '/products'
+    Product
+        //.findOne({ _id: req.params.productid}) kritere uyan ilk kayıtı getirir.
+        .findById(req.params.productid)
+            .then((product) => {
+                    
+                res.render('shop/product-detail',{
+                    title: product.name,
+                    product: product,
+                    path: '/products'
+                });
+            }).catch((err) => {
+                console.log(err);
             });
-        }).catch((err) => {
-            console.log(err);
-        });
-    
+        
     //or
     // Product.findByPk(req.params.productid)
     //     .then((product) => {
