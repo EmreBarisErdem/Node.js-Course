@@ -1,3 +1,4 @@
+const { isColString } = require('sequelize/lib/utils');
 const Category = require('../models/category');
 const Product = require('../models/product');
 
@@ -22,8 +23,11 @@ exports.getProducts = (req,res,next)=>{
     Product.find()
     //.limit(10) //10 adet getir.
     //.sort({price:1}) //price ' e göre sıralanmış bir şekilde getirir.
-    //.select({name:1,price:1}) //sadece name ve price sütunlarını getirir.
+    //.populate('userId') // komple userId yerine user nesnesini getirir.
+    .populate('userId','name -_id')// user nesnesinin sadece name 'ini getirmek istersek
+    .select('name price userId')
     .then((products) => {
+        console.log(products)
         res.render('admin/products',
             { 
                 title:'Admin Products', 
@@ -63,7 +67,8 @@ exports.postAddProduct = (req,res,next)=>{
         name: name,
         price: price,
         imageUrl: imageUrl,
-        description: description
+        description: description,
+        userId: req.user._id
 
     })
 

@@ -13,7 +13,8 @@ block content
                 tr
                     th(style="width:100px;") Image  
                     th Product Name  
-                    th(style="width:150px;") Price   
+                    th(style="width:150px;") Price  
+                    th User Name
                     th(style="width:133px;")  
 
             tbody 
@@ -23,6 +24,7 @@ block content
                             img(src=`/img/${product.imageUrl}` width = '80')
                         td  #{product.name}
                         td  #{product.price} TL
+                        td  #{product.userId.name}
                         td 
                             a.btn.btn-primary.btn-sm.mr-2(href=`/admin/products/${product._id}`) Edit
                             form(action='/admin/delete-product' method='POST')

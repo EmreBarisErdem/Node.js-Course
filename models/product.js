@@ -190,7 +190,12 @@ const productSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    //tags: [String] 
+    //tags: [String]
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // User tablosun ile ilişkilendirme
+        require: true
+    } 
     
 });
 
