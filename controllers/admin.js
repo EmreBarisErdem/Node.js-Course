@@ -115,50 +115,88 @@ exports.getEditProduct = (req,res,next)=>{
     
     Product.findById(req.params.productid)
         .then(product => {
-            Category.findAll()
-                .then(categories => {
-                    // categories
-                    categories = categories.map(category => { 
-                        if(product.categories){ //productın bir categorisi var ise
-                            product.categories.find(item => {
-                                if(item == category._id){
-                                    category.selected = true;
-                                }
-                            })
-                        }
-                        return category
-                    })
-
-                    res.render('admin/edit-product',
-                        {
-                            title: 'Edit Product',
-                            path: '/admin/products',
-                            product: product,
-                            categories: categories
-                        });
+            res.render('admin/edit-product',
+                {
+                    title: 'Edit Product',
+                    path: '/admin/products',
+                    product: product,
+                    //categories: categories
                 });
+            // Category.findAll()
+            //     .then(categories => {
+            //         // categories
+            //         categories = categories.map(category => { 
+            //             if(product.categories){ //productın bir categorisi var ise
+            //                 product.categories.find(item => {
+            //                     if(item == category._id){
+            //                         category.selected = true;
+            //                     }
+            //                 })
+            //             }
+            //             return category
+            //         })
+
+                    
+            //     });
         })
         .catch(err => console.log(err));
 }
 
 exports.postEditProduct = (req,res,next)=>{
 
+    //query firts
+    //update first
+
     const id= req.body.id
     const name = req.body.name;
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
-    const categories = req.body.categoryids;
+    //const categories = req.body.categoryids;
 
-    const product = new Product(name, price, description,imageUrl, id, req.user._id,categories);
+    //#region Mongoose ile...
+    // Product.findById(id)
+    //     .then(product => {
+    //         product.name = name;
+    //         product.price = price;
+    //         product.imageUrl = imageUrl;
+    //         product.description = description;
+    //         return product.save();
 
-    product.save()
-        .then((result) => {
+    //     })
+    //     .then(()=>{
+    //         res.redirect('/admin/products?action=edit');
+    //     })
+    //     .catch(err => console.log(err));
+
+
+        //or you can use this...
+
+        Product.update({_id:id},{
+            $set: {
+                name: name,
+                price: price,
+                imageUrl: imageUrl,
+                description: description
+            }
+        })
+        .then(()=>{
             res.redirect('/admin/products?action=edit');
-        }).catch((err) => {
-            console.log(err);
-        });
- 
+        })
+        .catch(err => console.log(err));
+
+    //#endregion
+
+    //#region MongoDB ile...
+    // const product = new Product(name, price, description,imageUrl, id, req.user._id,categories);
+
+    // product.save()
+    //     .then((result) => {
+    //         res.redirect('/admin/products?action=edit');
+    //     }).catch((err) => {
+    //         console.log(err);
+    //     });
+    //#endregion
     
 
     //or you can use the following
