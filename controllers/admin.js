@@ -170,7 +170,7 @@ exports.postEditProduct = (req,res,next)=>{
     //     .catch(err => console.log(err));
 
 
-        //or you can use this...
+    //or you can use this...
 
         Product.findOneAndUpdate({_id:id},{
             $set: {
@@ -213,7 +213,10 @@ exports.postDeleteProduct = (req,res,next) => {
 
     const id = req.body.productid;
 
-    Product.deleteById(id)
+    //#region Mongoose İle...
+    //or .findByIdAndRemove
+    //or .deleteMany eğer birden fazla kayıt silmek istersek
+    Product.deleteOne({_id:id})
         .then(() => {
             console.log('Product Has Been Deleted!');
             res.redirect('/admin/products?action=delete'); // asenkron olduğu için burada redirect yapılmalı. Çünkü catch'den sonra aşağıda redirect yapılırsa işlem tamamlanmadan sayfaya yönlendirilir.
@@ -221,7 +224,18 @@ exports.postDeleteProduct = (req,res,next) => {
         .catch((err) => {
             console.log(err);
         });
+    //#endregion
+    //#region MongoDb ile...
 
+    // Product.deleteById(id)
+    //     .then(() => {
+    //         console.log('Product Has Been Deleted!');
+    //         res.redirect('/admin/products?action=delete'); // asenkron olduğu için burada redirect yapılmalı. Çünkü catch'den sonra aşağıda redirect yapılırsa işlem tamamlanmadan sayfaya yönlendirilir.
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });
+    //#endregion
     //or you can use the following
     // Product.destroy({ where: { id: id } })
     //     .then(() => {
