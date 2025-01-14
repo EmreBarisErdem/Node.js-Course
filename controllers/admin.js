@@ -172,7 +172,7 @@ exports.postEditProduct = (req,res,next)=>{
 
         //or you can use this...
 
-        Product.update({_id:id},{
+        Product.findOneAndUpdate({_id:id},{
             $set: {
                 name: name,
                 price: price,
