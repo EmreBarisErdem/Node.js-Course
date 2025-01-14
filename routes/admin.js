@@ -32,4 +32,6 @@ router.get('/categories/:categoryid',adminController.getEditCategory);
 
 router.post('/categories',adminController.postEditCategory);
 
+router.post('/delete-category',adminController.postDeleteCategory);
+
 module.exports = router;

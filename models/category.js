@@ -57,74 +57,92 @@ module.exports = class Category{
 //#endregion
 
 //#region With MongoDB
-const mongodb = require('mongodb');
-const getDb = require('../Utility/database').getDb;
+// const mongodb = require('mongodb');
+// const getDb = require('../Utility/database').getDb;
 
-class Category{
-    constructor(name,description,id){
-        this.name = name;
-        this.description = description;
-        this._id = id ? new mongodb.ObjectId(id) : null;
-    }
+// class Category{
+//     constructor(name,description,id){
+//         this.name = name;
+//         this.description = description;
+//         this._id = id ? new mongodb.ObjectId(id) : null;
+//     }
 
-    save(){
-        let db = getDb();
+//     save(){
+//         let db = getDb();
 
-        if(this._id){
-            db = db.collection('categories')
-            .updateOne({_id: this._id},{$set: this});
-        }
-        else{
-            db = db
-                .collection('categories')
-                .insertOne(this)
-        }
+//         if(this._id){
+//             db = db.collection('categories')
+//             .updateOne({_id: this._id},{$set: this});
+//         }
+//         else{
+//             db = db
+//                 .collection('categories')
+//                 .insertOne(this)
+//         }
 
-        return db
-            .then((result) => {
-                console.log(result);   
-            }).catch((err) => {
-                console.log(err);
-            });
-    }
+//         return db
+//             .then((result) => {
+//                 console.log(result);   
+//             }).catch((err) => {
+//                 console.log(err);
+//             });
+//     }
 
-    static findAll(){
-        const db = getDb();
+//     static findAll(){
+//         const db = getDb();
 
-        return db.collection('categories')
-            .find()
-            .toArray()
-            .then((categories) => {
-                return categories;
-            })
-            .catch((err) => {console.log(err)});
+//         return db.collection('categories')
+//             .find()
+//             .toArray()
+//             .then((categories) => {
+//                 return categories;
+//             })
+//             .catch((err) => {console.log(err)});
             
+//     }
+
+//     static findById(categoryid){
+//         const db = getDb();
+
+//         return db.collection('categories')
+//             .findOne({_id: new mongodb.ObjectId(categoryid)})
+//             .then((category) => {
+//                 return category;   
+//             })
+//             .catch((err) => {console.log(err)});
+//     }
+
+//     static deleteById(categoryid){
+
+//         const db = getDb();
+
+//         return db.collection('categories')
+//             .deleteOne({_id: new mongodb.ObjectId(categoryid)})
+//             .then(() => {
+//                 console.log("Product has been deleted!");
+//             })
+//             .catch((err) => {console.log(err)});
+//     }
+// }
+
+// module.exports = Category;
+
+//#endregion
+
+
+//#region Mongoose ile...
+const mongoose = require('mongoose');
+
+const categorySchema = mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    description:{
+        type: String,
+        required: true,
     }
+})
 
-    static findById(categoryid){
-        const db = getDb();
-
-        return db.collection('categories')
-            .findOne({_id: new mongodb.ObjectId(categoryid)})
-            .then((category) => {
-                return category;   
-            })
-            .catch((err) => {console.log(err)});
-    }
-
-    static deleteById(categoryid){
-
-        const db = getDb();
-
-        return db.collection('categories')
-            .deleteOne({_id: new mongodb.ObjectId(categoryid)})
-            .then(() => {
-                console.log("Product has been deleted!");
-            })
-            .catch((err) => {console.log(err)});
-    }
-}
-
-module.exports = Category;
-
+module.exports = mongoose.model('Category', categorySchema);
 //#endregion

@@ -1,4 +1,3 @@
-const { isColString } = require('sequelize/lib/utils');
 const Category = require('../models/category');
 const Product = require('../models/product');
 
@@ -263,7 +262,9 @@ exports.postDeleteProduct = (req,res,next) => {
 
 exports.getCategories = (req,res,next) => {
     
-    Category.findAll()
+    //#region Mongoose ile...
+
+    Category.find()
         .then(categories => {
             res.render('admin/categories',
             {
@@ -277,6 +278,24 @@ exports.getCategories = (req,res,next) => {
             console.log(err);
         });
 
+
+    //#endregion
+
+    //#region MongoDb ile...
+    // Category.findAll()
+    //     .then(categories => {
+    //         res.render('admin/categories',
+    //         {
+    //             title:'Categories', 
+    //             path : '/admin/categories',
+    //             categories: categories,
+    //             action: req.query.action
+    //         });
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });
+    //#endregion
 }
 
 exports.getAddCategory = (req,res,next) => {
@@ -293,25 +312,30 @@ exports.postAddCategory = (req,res,next) => {
 
     const name = req.body.name;
     const description = req.body.description;
+    
+    //MongoDb ile..
+    //const category = new Category(name,description,null);
+    
+    //#region Mongoose ile
+    const category = new Category({
+        name: name,
+        description: description
 
-    const category = new Category(name,description,null);
+    })
 
     category.save()
-        .then(result => {
-
-            console.log(result);
-
+        .then(() => {
             res.redirect('/admin/categories?action=create');
-            
         }).catch(err => console.log(err));
-
+    //#endregion
     
 
 
 }
 
 exports.getEditCategory = (req,res,next) => {
-
+    
+    //#region Mongoose ile...
     Category.findById(req.params.categoryid)
         .then((category) => {
             res.render('admin/edit-category',{
@@ -322,6 +346,23 @@ exports.getEditCategory = (req,res,next) => {
         }).catch((err) => {
             console.log(err);
         });
+    //#endregion
+
+    //#region MongoDB ile...
+    // Category.findById(req.params.categoryid)
+    //     .then((category) => {
+    //         res.render('admin/edit-category',{
+    //             title: 'Edit Category',
+    //             category : category,
+    //             path: '/admin/categories'
+    //         });
+    //     }).catch((err) => {
+    //         console.log(err);
+    //     });
+
+    //#endregion
+
+
 }
 
 exports.postEditCategory = (req,res,next) => {
@@ -330,16 +371,44 @@ exports.postEditCategory = (req,res,next) => {
     const description = req.body.description
     const id = req.body.id
 
-    const category = new Category(name,description,id)
+    //#region Mongoose ile..
+    Category.findOneAndUpdate({_id:id},{
+        $set: {
+            name:name,
+            description:description
+        }
+    })
+    .then(()=>{
+        res.redirect('/admin/categories?action=edit')
+    }).catch(err => console.log(err));
+    //#endregion
 
-    category.save()
-        .then(() => {
-            res.redirect('/admin/categories?action=edit')
-        }).catch((err) => {
-            console.log(err);
-        });
+    //#region MongoDb ile...
+    // const category = new Category(name,description,id)
+
+    // category.save()
+    //     .then(() => {
+    //         res.redirect('/admin/categories?action=edit')
+    //     }).catch((err) => {
+    //         console.log(err);
+    //     });
+
+    //#endregion
 }
 
+exports.postDeleteCategory = (req,res,next) =>{
+
+    const id = req.body.categoryid;
+
+    Category.deleteOne({_id:id})
+        .then(()=>{
+            console.log('Category has been deleted!')
+            res.redirect('/admin/categories?action=delete');
+        })
+        .catch(err=>console.log(err));
+
+
+}
 
 
 
