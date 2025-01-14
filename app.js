@@ -23,7 +23,7 @@ const mongoose = require('mongoose');
 
 // const Category = require('./models/category');
 // const Product = require('./models/product');
- const User = require('./models/user');
+const User = require('./models/user');
 // const Cart = require('./models/cart');
 // const CartItem = require('./models/cartItem');
 // const Order = require('./models/order');
@@ -37,27 +37,14 @@ app.use(express.static(path.join(__dirname,'public')));
 
 //#region user bilgisini her requestte göndermek için middleware oluşturuyoruz.
 
-// app.use((req,res,next) => { 
-//     User.findByName('sadikturan')
-//         .then(user => {
-//             req.user = new User(user.name, user.email, user.cart, user._id);
-//             console.log(req.user) 
-//             next();
-//         })
-//         .catch(err => console.log(err));
-// });
-//#endregion
-
-//#region User bilgisini her requestte göndermek için middleware oluşturuyoruz.
-
-// app.use((req, res, next) => { // her requestte çalışacak olan middleware
-//     User.findByPk(1) // Assuming having a user with ID 1
-//         .then(user => {
-//             req.user = user;
-//             next();
-//         })
-//         .catch(err => console.log(err));
-// });
+app.use((req,res,next) => { 
+    User.findOne({name: 'sadikturan'})
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+});
 //#endregion
 
 
@@ -143,8 +130,8 @@ sequelize
 //routes
 app.use('/admin',adminRoutes); //admin ön ekini ekleyerek adrese her defasında ekleme yapmak zorunda kalmıyoruz.
 app.use(shopRoutes);
-
 app.use(errorController.get404Page);
+
 // app.get('/',(req,res)=>{
 //     res.send('Hello World');
 // })
@@ -207,15 +194,37 @@ app.use(errorController.get404Page);
 
 
 // });
-//#endregion
 // app.listen(3000,()=>{
-//     console.log('listening on port 3000');
-// });
+    //     console.log('listening on port 3000');
+    // });
+//#endregion
+
 
 mongoose.connect('mongodb://localhost/node-app') //mongodb+srv://erdememrebaris:09Haz1992.@cluster0.mgw1v.mongodb.net/node-app Atlasta bağlanırken
     .then(()=>{
         console.log('Connected to mongoDb');
-        app.listen(3000);
+
+        //#region Uygulama başlatılırken eğer user yok ise bir user oluşturmak için..
+        User.findOne({name: 'sadikturan'})
+        .then(user => {
+            if(!user){
+                user = new User({
+                    name: 'sadikturan',
+                    email: 'email@gmail.com',
+                    cart: {
+                        items: []
+                    }
+                });
+                return user.save();
+            }
+            return user;
+        })
+        //#endregion
+        .then((user)=>{
+            console.log(user);
+            app.listen(3000);
+        })
+        .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 
