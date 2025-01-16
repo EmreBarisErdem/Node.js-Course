@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Category = require('../models/category');
+const product = require('../models/product');
 
 exports.getIndex = (req,res,next)=>{
     //#region MongoDB ile
@@ -23,25 +24,20 @@ exports.getIndex = (req,res,next)=>{
     //#endregion
     //#region Mongoose ile...
     Product.find()
-    .then((products) => {
-
-        res.render('shop/index',
-            { 
-                title:'Shopping', 
-                products: products, 
-                path : '/'
+    .then(products => {
+        return products;
+    })
+    .then(products => {
+        Category.find()
+            .then(categories => {
+                res.render('shop/index',
+                    { 
+                        title:'Shopping', 
+                        products: products, 
+                        categories : categories,
+                        path : '/'
+                    }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
             });
-
-        // Category.findAll()
-        //     .then(categories => {
-        //         res.render('shop/index',
-        //             { 
-        //                 title:'Shopping', 
-        //                 products: products, 
-        //                 categories : categories,
-        //                 path : '/'
-        //             }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
-        //     });
     })
     .catch((err) => {
         console.log(err);
@@ -86,6 +82,7 @@ exports.getProducts = (req,res,next)=>{
 
     Product
         .find()
+        //#region Mongoose methodları...
         // .find({price: {$eq: 2000}})
         // .find({price: {$ne: 2000}})
         // .find({price: {$gt: 2000}})
@@ -104,28 +101,21 @@ exports.getProducts = (req,res,next)=>{
 
         // contains
         //find({name:/.*Samsung.*/})
-
+        //#endregion    
         .then((products) => {
-
-            res.render('shop/products',
-                { 
-                    title:'Products', 
-                    products: products, 
-                    path : '/'
-                }); 
-                   
-
-            // Category.findAll()
-            //     .then((categories) => {
-            //         res.render('shop/products',
-            //             { 
-            //                 title:'Products', 
-            //                 products: products, 
-            //                 categories : categories,
-            //                 path : '/'
-            //             }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor. 
-            //     });
-
+            return products;
+        })
+        .then(products => {
+            Category.find()
+                .then((categories) => {
+                    res.render('shop/products',
+                        { 
+                            title:'Products', 
+                            products: products, 
+                            categories : categories,
+                            path : '/'
+                        }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor. 
+                });
         })
         .catch((err) => {
             console.log(err);
@@ -137,13 +127,36 @@ exports.getProductsByCategoryId = (req,res,next)=>{
     const categoryid = req.params.categoryid;
     const modal = [];
 
-    Category.findAll()
+    //#region MongoDB ile...
+    // Category.findAll()
+    //     .then(categories => {
+    //         modal.categories = categories;
+    //         return Product.findByCategoryId(categoryid);
+
+    //         // const category = categories.find(i => i.id == categoryid);
+    //         // return category.getProducts(); //getProducts sequelize tarafından otomatik olarak oluşturulmuş bir fonksiyon ve ilişkili olan productları getirir.
+    //     })
+    //     .then(products => {
+    //         res.render('shop/products',
+    //             { 
+    //                 title:'Products', 
+    //                 products: products, 
+    //                 categories : modal.categories, //dışarda modal diye bir dizi oluşturmuştum çünkü categoriese ulaşmam gerekiyor.
+    //                 selectedCategory: categoryid,
+    //                 path : '/products'
+    //             }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor.
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });        
+
+        //#endregion
+
+
+    Category.find()
         .then(categories => {
             modal.categories = categories;
-            return Product.findByCategoryId(categoryid);
-
-            // const category = categories.find(i => i.id == categoryid);
-            // return category.getProducts(); //getProducts sequelize tarafından otomatik olarak oluşturulmuş bir fonksiyon ve ilişkili olan productları getirir.
+            return Product.find({categories: categoryid});
         })
         .then(products => {
             res.render('shop/products',
@@ -163,13 +176,15 @@ exports.getProductsByCategoryId = (req,res,next)=>{
 exports.getCart = (req,res,next)=>{
     
     req.user
-        .getCart()
-        .then(products => {
+        //.getCart() //user modeli içerisinde tanımlandı...
+        .populate('cart.items.productId') // bu şekilde userın cart nesnesinin içindeki items dizisi içerisindeki productlara ulaşabiliyorum
+        //.execPopulate() //Mongoose kütüphanesinde kullanılan bir methoddur ve populate() methodunun çalıştırılmasını sağlar. 
+        .then(user => {
             res.render('shop/cart',
                 { 
                     title:'Cart', 
                     path : '/cart',
-                    products: products
+                    products: user.cart.items
                 }); // it renders the shop/cart.pug file // title main-layout ta ki title oluyor.
         })
         .catch((err) => {console.log(err);});

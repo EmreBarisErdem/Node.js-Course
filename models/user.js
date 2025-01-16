@@ -206,6 +206,7 @@
 //#region Mongoose ile...
 
 const mongoose = require('mongoose');
+const Product = require('./product');
 
 const userSchema = mongoose.Schema({
 
@@ -233,6 +234,76 @@ const userSchema = mongoose.Schema({
         ]
     }
 })
+
+userSchema.methods.addToCart = function(product) {
+        const index = this.cart.items.findIndex(cp => {
+            return cp.productId.toString() === product._id.toString();
+        })
+        
+        const updatedCartItems = [...this.cart.items];
+
+        let itemQuantity = 1;
+
+        //cart zaten eklenmek istenen product varsa: quantity'i arttır.
+        if(index >= 0){
+            itemQuantity = this.cart.items[index].quantity + 1;
+            updatedCartItems[index].quantity = itemQuantity;
+        } 
+        else{
+        // updatedCartItems'a yeni bir eleman ekle
+            updatedCartItems.push({
+                productId: product._id, //Mongoose bunu ObjectId ye çeviriyor
+                quantity: itemQuantity
+            });
+        }
+
+        this.cart = {
+            items: updatedCartItems
+        }
+        return this.save();
+
+}
+
+userSchema.methods.getCart = function() {
+
+        //kullanıcının kartında olan bütün ürünlerin productId lerini geriye bir dizi olarak döndürür.
+        const ids = this.cart.items.map(i=> { 
+            return i.productId; //map methodu dizi olarak geri döner.
+        });
+
+        return Product
+                .find({_id: {$in: ids}}) // ids dizisi içerisndeki eşleşen id değerli productları geriye dizi olarak döndürecek..
+                .select('name price imageUrl')
+                .then(products => {
+                    return products.map(p=>{
+                        return {
+                            name: p.name,
+                            price: p.price,
+                            imageUrl: p.imageUrl,
+                            quantity: this.cart.items.find(i=> {
+                                return i.productId.toString() === p._id.toString();
+                            }).quantity
+                        }
+                    });
+                })
+
+
+}
+
+userSchema.methods.deleteCartItem = function(productid) {
+
+    const cartItems = this.cart.items.filter(item => {
+        return item.productId.toString() !== productid.toString()
+        
+    });
+
+    this.cart.items = cartItems;
+
+    return this.save();
+
+
+
+}
 
 module.exports = mongoose.model('User',userSchema);
 
