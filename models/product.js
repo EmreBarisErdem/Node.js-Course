@@ -193,9 +193,16 @@ const productSchema = mongoose.Schema({
     //tags: [String]
     userId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // User tablosun ile ilişkilendirme
+        ref: 'User', // User tablosu ile ilişkilendirme
         require: true
-    } 
+    },
+    categories: [ //dizi olduğuna dikkat et!
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category', // Category Tablosu ile ilişkilendirme
+        require : true
+        }
+    ]
     
 });
 

@@ -24,7 +24,7 @@ exports.getProducts = (req,res,next)=>{
     //.sort({price:1}) //price ' e göre sıralanmış bir şekilde getirir.
     //.populate('userId') // komple userId yerine user nesnesini getirir.
     .populate('userId','name -_id')// user nesnesinin sadece name 'ini getirmek istersek
-    .select('name price userId')
+    .select('name price imageUrl userId')
     .then((products) => {
         console.log(products)
         res.render('admin/products',
@@ -91,7 +91,7 @@ exports.postAddProduct = (req,res,next)=>{
 
 exports.getEditProduct = (req,res,next)=>{
     // res.sendFile(path.join(__dirname,'../','views','add-product.html'));
-    //#region 
+    //#region Sequielize ile...
 
     // Product.findByPk(req.params.productid)
     //     .then((product) => {
@@ -117,33 +117,42 @@ exports.getEditProduct = (req,res,next)=>{
     //view engine 'i kullanıyor, view dosyası içerisindeki edit-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.
    //#endregion
     
+    //#region  Mongoose ile...
     Product.findById(req.params.productid)
+        //.populate('categories') 
         .then(product => {
-            res.render('admin/edit-product',
-                {
-                    title: 'Edit Product',
-                    path: '/admin/products',
-                    product: product,
-                    //categories: categories
-                });
-            // Category.findAll()
-            //     .then(categories => {
-            //         // categories
-            //         categories = categories.map(category => { 
-            //             if(product.categories){ //productın bir categorisi var ise
-            //                 product.categories.find(item => {
-            //                     if(item == category._id){
-            //                         category.selected = true;
-            //                     }
-            //                 })
-            //             }
-            //             return category
-            //         })
+            console.log(product);
+            return product;
+        })
+        .then(product => {
+            Category.find()
+                .then(categories => {
 
-                    
-            //     });
+                    categories = categories.map(category=> {
+                        
+                        if(product.categories){
+                            product.categories.find(item=>{
+                                if(item.toString() === category._id.toString()){
+                                    category.selected = true;
+                                }
+                            })
+                        }
+                        
+                        return category;
+                    })
+
+                    res.render('admin/edit-product',
+                        {
+                            title: 'Edit Product',
+                            path: '/admin/products',
+                            product: product,
+                            categories: categories
+                        });
+                });
         })
         .catch(err => console.log(err));
+
+    //#endregion
 }
 
 exports.postEditProduct = (req,res,next)=>{
@@ -156,7 +165,7 @@ exports.postEditProduct = (req,res,next)=>{
     const price = req.body.price;
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
-    //const categories = req.body.categoryids;
+    const ids = req.body.categoryids;
 
     //#region Mongoose ile...
     // Product.findById(id)
@@ -181,7 +190,8 @@ exports.postEditProduct = (req,res,next)=>{
                 name: name,
                 price: price,
                 imageUrl: imageUrl,
-                description: description
+                description: description,
+                categories : ids
             }
         })
         .then(()=>{
