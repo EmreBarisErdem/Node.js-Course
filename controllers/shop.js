@@ -260,10 +260,27 @@ exports.getOrders = (req,res,next)=>{
     //         console.log(err);
     //     });
     //#endregion
+    //#region MongoDb ile....
+    // req.user
+    //     .getOrders()
+    //     .then(orders => {
+    //         res.render('shop/orders',
+    //             { 
+    //                 title:'Orders',
+    //                 path : '/orders',
+    //                 orders: orders
 
-    req.user
-        .getOrders()
+    //             });
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });
+    //#endregion
+
+    //#region Mongoose ile...
+    Order.find({'user.userId':req.user._id})
         .then(orders => {
+            console.log(orders);
             res.render('shop/orders',
                 { 
                     title:'Orders',
@@ -275,6 +292,7 @@ exports.getOrders = (req,res,next)=>{
         .catch((err) => {
             console.log(err);
         });
+    //#endregion
 
 }
 
@@ -358,7 +376,7 @@ exports.postOrder = (req,res,next)=>{
 
         })
         .then(()=>{
-            res.redirect('/order');
+            res.redirect('/orders');
         })
         .catch(err=>console.log(err));
     //#endregion
