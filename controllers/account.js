@@ -13,11 +13,16 @@ exports.postLogin = (req, res, next) => {
     //bu şekilde yapılan authentication işlemi çalışmaz çünkü middleware ile her requestte ben req'e yeni bir user atıyorum ve isAuthenticated alanı sıfırlanıyor.
     if((email === 'email@gmail.com') && (password === '1234')){
         req.isAuthenticated = true;
+        //#region cookie kullanımı...
+        //npm install --save cookie-parser
+        res.cookie('isAuthenticated', true);
+        //#endregion
         res.redirect('/');
     
     }
     else{
         req.isAuthenticated = false;
+        res.cookie('isAuthenticated', false);
         res.redirect('/login');
     }
 
