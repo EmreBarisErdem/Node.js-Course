@@ -35,7 +35,8 @@ exports.getIndex = (req,res,next)=>{
                         title:'Shopping', 
                         products: products, 
                         categories : categories,
-                        path : '/'
+                        path : '/',
+                        isAuthenticated: req.isAuthenticated
                     }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
             });
     })
