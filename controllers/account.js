@@ -18,9 +18,17 @@ exports.postLogin = (req, res, next) => {
         //res.cookie('isAuthenticated', true);
         //#endregion
 
+        
         //#region session kullanımı...
+
         //npm install --save express-session
         req.session.isAuthenticated = true;
+        //#endregion
+
+        //#region session bilgilerinin mongoDB'de saklanması
+
+        //npm install --save connect-mongodb-session
+
         //#endregion
         res.redirect('/');
     

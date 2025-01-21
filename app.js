@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const mongoDbStore = require('connect-mongodb-session')(session);
 //https://expressjs.com/en/4x/api.html#app.set
 // app.set('title', 'My Site'); //set ettiğimiz değeri daha sonra get metodu ile alabiliyoruz.
 // console.log(app.get('title')); // "My Site"
@@ -32,6 +33,15 @@ const User = require('./models/user');
 // const Order = require('./models/order');
 // const OrderItem = require('./models/orderItem');
 
+const connectionString = 'mongodb://localhost/node-app'
+
+var store = new mongoDbStore({
+    //connection stringi
+    uri: connectionString,
+    collection: 'mySessions'
+  });
+
+
 //#region body parser middleware
 
 app.use(bodyParser.urlencoded({extended:false}));
@@ -41,8 +51,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 5000
-    }
+        maxAge: 1000*60*60*24*7 //1week 
+    },
+    store: store
 
 }));
 app.use(express.static(path.join(__dirname,'public')));
@@ -215,7 +226,7 @@ app.use(errorController.get404Page);
 //#endregion
 
 
-mongoose.connect('mongodb://localhost/node-app') //mongodb+srv://erdememrebaris:09Haz1992.@cluster0.mgw1v.mongodb.net/node-app Atlasta bağlanırken
+mongoose.connect(connectionString) //mongodb+srv://erdememrebaris:09Haz1992.@cluster0.mgw1v.mongodb.net/node-app Atlasta bağlanırken
     .then(()=>{
         console.log('Connected to mongoDb');
 
