@@ -24,7 +24,8 @@ exports.getIndex = (req,res,next)=>{
     //#endregion
     //#region Mongoose ile...
     //console.log(req.isAuthenticated); => null döner
-    console.log(req.cookies.isAuthenticated);
+    //console.log(req.cookies.isAuthenticated);
+    console.log(req.session.isAuthenticated);
     
     Product.find()
     .then(products => {
@@ -39,7 +40,7 @@ exports.getIndex = (req,res,next)=>{
                         products: products, 
                         categories : categories,
                         path : '/',
-                        isAuthenticated: req.cookies.isAuthenticated === 'true'
+                        isAuthenticated: req.session.isAuthenticated
                     }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
             });
     })

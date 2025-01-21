@@ -7,6 +7,7 @@ const app = express(); //express aslında bir fonksiyon ama onu objeye set edip 
 const bodyParser = require('body-parser');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 //https://expressjs.com/en/4x/api.html#app.set
 // app.set('title', 'My Site'); //set ettiğimiz değeri daha sonra get metodu ile alabiliyoruz.
 // console.log(app.get('title')); // "My Site"
@@ -35,6 +36,15 @@ const User = require('./models/user');
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(cookieParser());
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 5000
+    }
+
+}));
 app.use(express.static(path.join(__dirname,'public')));
 //#endregion
 

@@ -15,7 +15,12 @@ exports.postLogin = (req, res, next) => {
         req.isAuthenticated = true;
         //#region cookie kullanımı...
         //npm install --save cookie-parser
-        res.cookie('isAuthenticated', true);
+        //res.cookie('isAuthenticated', true);
+        //#endregion
+
+        //#region session kullanımı...
+        //npm install --save express-session
+        req.session.isAuthenticated = true;
         //#endregion
         res.redirect('/');
     
