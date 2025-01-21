@@ -15,6 +15,7 @@ app.set('views','./views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const accountRoutes = require('./routes/account');
 
 const errorController = require('./controllers/errors');
 const mongoose = require('mongoose');
@@ -130,6 +131,8 @@ sequelize
 //routes
 app.use('/admin',adminRoutes); //admin ön ekini ekleyerek adrese her defasında ekleme yapmak zorunda kalmıyoruz.
 app.use(shopRoutes);
+app.use(accountRoutes);
+
 app.use(errorController.get404Page);
 
 // app.get('/',(req,res)=>{
