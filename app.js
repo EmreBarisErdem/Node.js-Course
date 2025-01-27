@@ -229,28 +229,28 @@ app.use(errorController.get404Page);
 mongoose.connect(connectionString) //mongodb+srv://erdememrebaris:09Haz1992.@cluster0.mgw1v.mongodb.net/node-app Atlasta bağlanırken
     .then(()=>{
         console.log('Connected to mongoDb');
-
-        //#region Uygulama başlatılırken eğer user yok ise bir user oluşturmak için..
-        User.findOne({name: 'sadikturan'})
-        .then(user => {
-            if(!user){
-                user = new User({
-                    name: 'sadikturan',
-                    email: 'email@gmail.com',
-                    cart: {
-                        items: []
-                    }
-                });
-                return user.save();
-            }
-            return user;
-        })
-        //#endregion
-        .then((user)=>{
-            console.log(user);
-            app.listen(3000);
-        })
-        .catch(err => console.log(err));
+        app.listen(3000);
+    //#region Uygulama başlatılırken eğer user yok ise bir user oluşturmak için..
+        // User.findOne({name: 'sadikturan'})
+        // .then(user => {
+        //     if(!user){
+        //         user = new User({
+        //             name: 'sadikturan',
+        //             email: 'email@gmail.com',
+        //             cart: {
+        //                 items: []
+        //             }
+        //         });
+        //         return user.save();
+        //     }
+        //     return user;
+        // })
+        // .then((user)=>{
+            //     console.log(user);
+            //     app.listen(3000);
+            // })
+            // .catch(err => console.log(err));
+    //#endregion
     })
     .catch(err => console.log(err));
 

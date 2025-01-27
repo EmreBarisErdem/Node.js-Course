@@ -1,7 +1,10 @@
+const User = require('../models/user');
+
 exports.getLogin = (req, res, next) => {
     res.render('account/login',{
         path:'/login',
-        title: 'Login'
+        title: 'Login',
+        isAuthenticated: req.session.isAuthenticated
     });
 }
 
@@ -46,12 +49,35 @@ exports.postLogin = (req, res, next) => {
 exports.getRegister = (req, res, next) => {
     res.render('account/register',{
         path:'/register',
-        title: 'Register'
+        title: 'Register',
+        isAuthenticated: req.session.isAuthenticated
     });
 }
 
 exports.postRegister = (req, res, next) => {
-    res.redirect('/');
+    const name = req.body.name;
+    const email = req.body.email;
+    const password = req.body.password;
+
+    User.findOne({email: email})
+        .then(user => {
+            if(user){
+                return res.redirect('/register');
+            }
+            const newUser = new User({
+                name: name,
+                email: email,
+                password: password,
+                cart: {
+                    items: []
+                }
+            });
+            return newUser.save();
+        })
+        .then(()=>{
+            res.redirect('/login');
+        })
+        .catch(err => console.log(err));
 }
 
 exports.getReset = (req, res, next) => {
