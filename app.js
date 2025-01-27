@@ -62,7 +62,13 @@ app.use(express.static(path.join(__dirname,'public')));
 //#region user bilgisini her requestte göndermek için middleware oluşturuyoruz.
 
 app.use((req,res,next) => { 
-    User.findOne({name: 'sadikturan'})
+    if(!req.session.user){
+        return next();
+        //eğer session da bir user bilgisi yok ise
+        //aşağıdaki kodlar işletilmez çünkü return ile next fonksiyonu çalıştırıldı.
+    }
+    //eğer session da bir user var ise 
+    User.findById(req.session.user._id)
         .then(user => {
             req.user = user;
             next();

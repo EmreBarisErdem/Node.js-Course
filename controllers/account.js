@@ -15,6 +15,8 @@ exports.postLogin = (req, res, next) => {
     const password = req.body.password;
 
     //bu şekilde yapılan authentication işlemi çalışmaz çünkü middleware ile her requestte ben req'e yeni bir user atıyorum ve isAuthenticated alanı sıfırlanıyor.
+    //#region cookie/session kullanımı...
+    /*
     if((email === 'email@gmail.com') && (password === '1234')){
         req.isAuthenticated = true;
         //#region cookie kullanımı...
@@ -42,8 +44,35 @@ exports.postLogin = (req, res, next) => {
         res.cookie('isAuthenticated', false);
         res.redirect('/login');
     }
+    */
+    //#endregion
 
-
+    User.findOne({email: email})
+        .then(user => {
+            if(!user){
+                return res.redirect('/login');
+            }
+            bcrypt.compare(password, user.password)
+                .then(isSucceded => {
+                    if(isSucceded){
+                        //login işlemleri
+                        req.session.user = user;
+                        req.session.isAuthenticated = true;
+                        return req.session.save(err => {
+                            console.log(err);
+                            res.redirect('/');
+                        });
+                    }
+                    res.redirect('/login');
+                    //kullanıcıya bilgi verilebilir.
+              
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+            
+        })
+        .catch(err => console.log(err));
     
 }
 
