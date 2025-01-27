@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
 
 exports.getLogin = (req, res, next) => {
     res.render('account/login',{
@@ -64,15 +65,19 @@ exports.postRegister = (req, res, next) => {
             if(user){
                 return res.redirect('/register');
             }
+            return bcrypt.hash(password, 10); // parolayı hashle, 10 => kaç kere hashleme yapılacağını belirtir.
+        })
+        .then(hashedPassword => {
             const newUser = new User({
                 name: name,
                 email: email,
-                password: password,
+                password: hashedPassword,
                 cart: {
                     items: []
                 }
             });
             return newUser.save();
+        
         })
         .then(()=>{
             res.redirect('/login');
