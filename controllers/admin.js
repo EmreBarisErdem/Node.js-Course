@@ -44,7 +44,7 @@ exports.getProducts = (req,res,next)=>{
 
 exports.getAddProduct = (req,res,next)=>{
     // res.sendFile(path.join(__dirname,'../','views','add-product.html'));
-    
+
     res.render('admin/add-product',{
         title: 'New Product',
         path: '/admin/add-product',
