@@ -58,9 +58,11 @@ exports.postLogin = (req, res, next) => {
                         //login işlemleri
                         req.session.user = user;
                         req.session.isAuthenticated = true;
-                        return req.session.save(err => {
-                            console.log(err);
-                            res.redirect('/');
+                        return req.session.save(() => {
+                            var url = req.session.redirectTo || '/' //kullanıcının gitmek istediği sayfa'
+                            delete req.session.redirectTo;
+                            //kullanıcının gitmek istediği sayfayı sessiondan sildik.
+                            res.redirect(url);
                         });
                     }
                     res.redirect('/login');
@@ -123,4 +125,14 @@ exports.getReset = (req, res, next) => {
 
 exports.postReset = (req, res, next) => {
     res.redirect('/');
+}
+
+exports.getLogout = (req, res, next) => {
+
+    req.session.destroy(err => {
+        console.log(err);
+        res.redirect('/');
+    })
+
+    
 }
