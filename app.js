@@ -11,7 +11,6 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const mongoDbStore = require('connect-mongodb-session')(session);
 const csurf = require("csurf");
-require('dotenv').config();
 //https://expressjs.com/en/4x/api.html#app.set
 // app.set('title', 'My Site'); //set ettiğimiz değeri daha sonra get metodu ile alabiliyoruz.
 // console.log(app.get('title')); // "My Site"
