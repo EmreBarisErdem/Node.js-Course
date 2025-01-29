@@ -163,7 +163,7 @@ exports.postReset = (req, res, next) => {
             sendMail(
                 email,
                 'Password Reset Token',
-                '<p>Please click the link to reset your password: ' + `<a href="https://localhost:3500/reset-password/${token}">Reset Password</a>` + '</p>'
+                '<p>Please click the link to reset your password: ' + `<a href="https://localhost:3600/reset-password/${token}">Reset Password</a>` + '</p>'
             );
         })
         .catch(err => {

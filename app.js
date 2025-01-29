@@ -1,4 +1,3 @@
-
 //Express.js (Web Frameworkü)(DB servisine bağlanma işlemleri)
 
 //Request ve Response objelerini oluşturur.
@@ -242,7 +241,7 @@ app.use(errorController.get404Page);
 mongoose.connect(connectionString) //mongodb+srv://erdememrebaris:09Haz1992.@cluster0.mgw1v.mongodb.net/node-app Atlasta bağlanırken
     .then(()=>{
         console.log('Connected to mongoDb');
-        app.listen(process.env.PORT);
+        app.listen(3000); // Use the new port or default to 3000
     //#region Uygulama başlatılırken eğer user yok ise bir user oluşturmak için..
         // User.findOne({name: 'sadikturan'})
         // .then(user => {
