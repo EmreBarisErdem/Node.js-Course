@@ -2,9 +2,12 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 
 exports.getLogin = (req, res, next) => {
+    var errorMessage = req.session.errorMessage;
+    delete req.session.errorMessage;
     res.render('account/login',{
         path:'/login',
         title: 'Login',
+        errorMessage: errorMessage
         //isAuthenticated: req.session.isAuthenticated,
         //csrfToken: req.csrfToken() // csurf middleware ile oluşturulan token
         //tek tek bütün metotlara csrf'i eklemek yerine routes'da tüm route'lara ekleyebiliriz.
@@ -52,7 +55,11 @@ exports.postLogin = (req, res, next) => {
     User.findOne({email: email})
         .then(user => {
             if(!user){
-                return res.redirect('/login');
+                req.session.errorMessage = "Kullanıcı bulunamadı.";
+                req.session.save(function (err){
+                    console.log(err);
+                    return res.redirect('/login');
+                });
             }
             bcrypt.compare(password, user.password)
                 .then(isSucceded => {
@@ -81,9 +88,12 @@ exports.postLogin = (req, res, next) => {
 }
 
 exports.getRegister = (req, res, next) => {
+    var errorMessage = req.session.errorMessage;
+    delete req.session.errorMessage;
     res.render('account/register',{
         path:'/register',
         title: 'Register',
+        errorMessage: errorMessage
     });
 }
 
@@ -95,7 +105,12 @@ exports.postRegister = (req, res, next) => {
     User.findOne({email: email})
         .then(user => {
             if(user){
-                return res.redirect('/register');
+                req.session.errorMessage = "Bu Mail adresi ile daha önce kayıt olunmuştur.";
+                req.session.save(function (err){
+                    console.log(err);
+                    return res.redirect('/register');
+                    
+                });
             }
             return bcrypt.hash(password, 10); // parolayı hashle, 10 => kaç kere hashleme yapılacağını belirtir.
         })
