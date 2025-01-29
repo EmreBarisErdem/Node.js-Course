@@ -9,6 +9,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const mongoDbStore = require('connect-mongodb-session')(session);
+const csurf = require("csurf");
 //https://expressjs.com/en/4x/api.html#app.set
 // app.set('title', 'My Site'); //set ettiğimiz değeri daha sonra get metodu ile alabiliyoruz.
 // console.log(app.get('title')); // "My Site"
@@ -75,6 +76,11 @@ app.use((req,res,next) => {
         })
         .catch(err => console.log(err));
 });
+//#endregion
+
+//#region csurf middleware
+app.use(csurf());
+// Cross Site Request Forgery(CSRF/XSRF) nedir => https://learn.microsoft.com/tr-tr/aspnet/mvc/overview/security/xsrfcsrf-prevention-in-aspnet-mvc-and-web-pages
 //#endregion
 
 

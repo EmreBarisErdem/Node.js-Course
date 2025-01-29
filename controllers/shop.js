@@ -40,7 +40,6 @@ exports.getIndex = (req,res,next)=>{
                         products: products, 
                         categories : categories,
                         path : '/',
-                        isAuthenticated: req.session.isAuthenticated
                     }); // it renders the shop/index.pug file // title main-layout ta ki title oluyor.    
             });
     })
@@ -119,7 +118,6 @@ exports.getProducts = (req,res,next)=>{
                             products: products, 
                             categories : categories,
                             path : '/',
-                            isAuthenticated: req.session.isAuthenticated
                         }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor. 
                 });
         })
@@ -172,7 +170,6 @@ exports.getProductsByCategoryId = (req,res,next)=>{
                     categories : modal.categories, //dışarda modal diye bir dizi oluşturmuştum çünkü categoriese ulaşmam gerekiyor.
                     selectedCategory: categoryid,
                     path : '/products',
-                    isAuthenticated: req.session.isAuthenticated
                 }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor.
         })
         .catch((err) => {
@@ -192,7 +189,6 @@ exports.getCart = (req,res,next)=>{
                     title:'Cart', 
                     path : '/cart',
                     products: user.cart.items,
-                    isAuthenticated: req.session.isAuthenticated
                 }); // it renders the shop/cart.pug file // title main-layout ta ki title oluyor.
         })
         .catch((err) => {console.log(err);});
@@ -294,8 +290,6 @@ exports.getOrders = (req,res,next)=>{
                     title:'Orders',
                     path : '/orders',
                     orders: orders,
-                    isAuthenticated: req.session.isAuthenticated
-
                 });
         })
         .catch((err) => {
@@ -435,7 +429,6 @@ exports.getProduct = (req,res,next)=>{
                     title: product.name,
                     product: product,
                     path: '/products',
-                    isAuthenticated: req.session.isAuthenticated
                 });
             }).catch((err) => {
                 console.log(err);

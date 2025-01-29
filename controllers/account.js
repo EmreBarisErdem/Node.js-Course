@@ -5,7 +5,9 @@ exports.getLogin = (req, res, next) => {
     res.render('account/login',{
         path:'/login',
         title: 'Login',
-        isAuthenticated: req.session.isAuthenticated
+        //isAuthenticated: req.session.isAuthenticated,
+        //csrfToken: req.csrfToken() // csurf middleware ile oluşturulan token
+        //tek tek bütün metotlara csrf'i eklemek yerine routes'da tüm route'lara ekleyebiliriz.
     });
 }
 
@@ -82,7 +84,6 @@ exports.getRegister = (req, res, next) => {
     res.render('account/register',{
         path:'/register',
         title: 'Register',
-        isAuthenticated: req.session.isAuthenticated
     });
 }
 

@@ -33,7 +33,6 @@ exports.getProducts = (req,res,next)=>{
                 products: products,
                 path : '/admin/products',
                 action: req.query.action, //Query String ile postEditProduct Methodundan geliyor.
-                isAuthenticated: req.session.isAuthenticated 
             });
     }).catch((err) => {
         console.log(err);
@@ -48,7 +47,6 @@ exports.getAddProduct = (req,res,next)=>{
     res.render('admin/add-product',{
         title: 'New Product',
         path: '/admin/add-product',
-        isAuthenticated: req.session.isAuthenticated
     }); //view engine 'i kullanıyor, view dosyası içerisindeki add-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.    
 
     
@@ -150,7 +148,6 @@ exports.getEditProduct = (req,res,next)=>{
                             path: '/admin/products',
                             product: product,
                             categories: categories,
-                            isAuthenticated: req.session.isAuthenticated
                         });
                 });
         })
@@ -286,7 +283,6 @@ exports.getCategories = (req,res,next) => {
                 path : '/admin/categories',
                 categories: categories,
                 action: req.query.action,
-                isAuthenticated: req.session.isAuthenticated
             });
         })
         .catch((err) => {
@@ -318,7 +314,6 @@ exports.getAddCategory = (req,res,next) => {
     res.render('admin/add-category',{
         title: 'New Category',
         path: '/admin/add-category',
-        isAuthenticated: req.session.isAuthenticated
     });
 
 
@@ -358,7 +353,6 @@ exports.getEditCategory = (req,res,next) => {
                 title: 'Edit Category',
                 category : category,
                 path: '/admin/categories',
-                isAuthenticated: req.session.isAuthenticated
             });
         }).catch((err) => {
             console.log(err);
