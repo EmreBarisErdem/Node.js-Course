@@ -4,6 +4,9 @@ block styles
     link(rel='stylesheet' href="/css/forms.css")
 
 block content 
+    if errorMessage        
+        div.alert.alert-danger.col-sm-7 #{errorMessage}
+
     form(action="/reset" method="POST")
         input(type="hidden", name="_csrf", value=`${csrfToken}`)
         .form-group.row
