@@ -242,7 +242,7 @@ app.use(errorController.get404Page);
 mongoose.connect(connectionString) //mongodb+srv://erdememrebaris:09Haz1992.@cluster0.mgw1v.mongodb.net/node-app Atlasta bağlanırken
     .then(()=>{
         console.log('Connected to mongoDb');
-        app.listen(3500);
+        app.listen(process.env.PORT);
     //#region Uygulama başlatılırken eğer user yok ise bir user oluşturmak için..
         // User.findOne({name: 'sadikturan'})
         // .then(user => {

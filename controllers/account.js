@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const sendMail = require('../Utility/emailService');
+const getToken = require('../Utility/jwtToken');
 
 exports.getLogin = (req, res, next) => {
     var errorMessage = req.session.errorMessage;
@@ -152,7 +153,23 @@ exports.getReset = (req, res, next) => {
 }
 
 exports.postReset = (req, res, next) => {
-    res.redirect('/');
+    const email = req.body.email;
+
+    // Generating Token
+    getToken(email)
+        .then((token) => {
+            res.redirect('/');
+            // Sending Email
+            sendMail(
+                email,
+                'Password Reset Token',
+                '<p>Please click the link to reset your password: ' + `<a href="https://localhost:3500/reset-password/${token}">Reset Password</a>` + '</p>'
+            );
+        })
+        .catch(err => {
+            console.log(err);
+            res.redirect('/reset-password');
+        });
 }
 
 exports.getLogout = (req, res, next) => {

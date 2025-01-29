@@ -3,18 +3,19 @@ const sgMail = require("@sendgrid/mail");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-async function sendEmail(to, subject, html) {
+async function sendEmail(email, subject, html, text) {
+
     const msg = {
-        to: to,
-        from: 'info@erdememre.com',
+        to: email,
+        from: 'info@example.com',
         subject: subject,
         html: html,
-        //or text: 'some text'
+        text: text
     };
 
     try {
         await sgMail.send(msg);
-        console.log(`Email sent to ${to}`);
+        console.log(`Email sent to ${email}`);
     } catch (error) {
         console.error("Error sending email:", error.response ? error.response.body : error);
     }
