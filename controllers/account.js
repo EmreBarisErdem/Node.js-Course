@@ -1,7 +1,6 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey("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");
+const sendMail = require('../Utility/emailService');
 
 exports.getLogin = (req, res, next) => {
     var errorMessage = req.session.errorMessage;
@@ -132,20 +131,12 @@ exports.postRegister = (req, res, next) => {
 
             res.redirect('/login');
 
-            const msg = {
-                to: email,
-                from: 'info@erdememre.com',
-                subject: 'Hesap Oluşturma',
-                // text: 'and easy to do anywhere, even with Node.js', or
-                html: '<h1>Hesabınız başarılı bir şekilde oluşturuldu.</h1>',
-            }
-            sgMail.send(msg)
-                .then(() => {
-                    console.log('Email sent');
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
+            sendMail(
+                email,
+                'Kayıt işlemi',
+                '<h1>Kayıt işleminiz başarılı bir şekilde gerçekleşmiştir.</h1>'
+            );
+
         })
         .catch(err => console.log(err));
 }
