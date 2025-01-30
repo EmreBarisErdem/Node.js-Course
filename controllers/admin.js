@@ -19,7 +19,7 @@ exports.getProducts = (req,res,next)=>{
     //#endregion
     
     //#region Mongoose ile...
-    Product.find()
+    Product.find({userId: req.user._id})
     //.limit(10) //10 adet getir.
     //.sort({price:1}) //price ' e göre sıralanmış bir şekilde getirir.
     //.populate('userId') // komple userId yerine user nesnesini getirir.
@@ -119,10 +119,13 @@ exports.getEditProduct = (req,res,next)=>{
    //#endregion
     
     //#region  Mongoose ile...
-    Product.findById(req.params.productid)
+    Product.findOne({_id:req.params.productid, userId:req.user._id})
         //.populate('categories') 
         .then(product => {
-            console.log(product);
+            if(!product){
+                //kullanıcıya ürün bulunamadı hatası verilebilir.
+                return res.redirect('/');
+            }
             return product;
         })
         .then(product => {
@@ -186,7 +189,7 @@ exports.postEditProduct = (req,res,next)=>{
 
     //or you can use this...
 
-        Product.findOneAndUpdate({_id:id},{
+        Product.findOneAndUpdate({_id:id, userId: req.user._id},{
             $set: {
                 name: name,
                 price: price,
@@ -411,9 +414,14 @@ exports.postDeleteCategory = (req,res,next) =>{
 
     const id = req.body.categoryid;
 
-    Category.deleteOne({_id:id})
-        .then(()=>{
-            console.log('Category has been deleted!')
+    Category.deleteOne({_id:id, userId: req.user._id})
+        .then((result)=>{
+            if(result.deletedCount === 0){
+                //yetkisiz bir şekilde ürün silmeye kalkarsak...
+                return res.redirect('/');
+            }
+            // console.log(result);
+            // console.log('Category has been deleted!')
             res.redirect('/admin/categories?action=delete');
         })
         .catch(err=>console.log(err));
