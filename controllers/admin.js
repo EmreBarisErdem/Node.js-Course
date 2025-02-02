@@ -77,7 +77,7 @@ exports.postAddProduct = (req,res,next)=>{
         .then(() => {
             res.redirect('/admin/products'); //Anasayfaya yönlendirildi.
         }).catch((err) => {
-            console.log(err);
+            console.log(err.message);
         }); 
 
 
