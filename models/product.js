@@ -174,27 +174,54 @@
 
 //#region Mongoose ORM ile...
 const mongoose = require('mongoose');
+const { isLowercase } = require('validator');
 
 const productSchema = mongoose.Schema({
     name: {
         type:String,
-        required:true
+        required: [true,'Ürün ismi girmelisiniz'], // Eğer girilmezse hata mesajı
+        minlength: [5,'Ürün ismi en az 5 karakter olmalıdır.'], // Eğer girilen değer 5 karakterden az ise hata mesajı
+        maxlength: [255,'Ürün ismi en fazla 255 karakter olmalıdır.'], // Eğer girilen değer 255 karakterden fazla ise hata mesajı
+        lowercase: true, // Girilen değeri küçük harfe çevirir.
+        trim: true,
     },
     price: {
         type: Number,
-        required: true
+        required: function() {
+            return this.isActive;
+        },
+        min: 0,
+        max: 10000,
+        get: value => Math.round(value), // Get metodu ile değeri alırken değeri yuvarlar
+        set: value => Math.round(value) // Set metodu ile database e kaydederken değeri yuvarlar
+
     },
-    description: String,
+    description: {
+        type: String,
+        minlength: 10,
+    },
     imageUrl: String,
     date: {
         type: Date,
         default: Date.now
     },
-    //tags: [String]
     userId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // User tablosu ile ilişkilendirme
         require: true
+    },
+    tags: {
+        type: Array,
+        validate: {
+            validator: function(value) {
+                return value && value.length > 0;
+            },
+            message: 'A product should have at least one tag.'
+        }
+    },
+    isActive: {
+        type: Boolean,
+        default: false
     },
     categories: [ //dizi olduğuna dikkat et!
         {

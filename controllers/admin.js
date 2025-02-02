@@ -55,10 +55,10 @@ exports.getAddProduct = (req,res,next)=>{
 
 exports.postAddProduct = (req,res,next)=>{
    
-    const name = req.body.name;
-    const price = req.body.price;
+    const name = req.body.name ? req.body.name : null;
+    const price = req.body.price ? req.body.price : null;
     const imageUrl = req.body.imageUrl;
-    const description = req.body.description;
+    const description = req.body.description ? req.body.description : null;
 
     //MongoDB ile...
     // const product = new Product( name, price,description, imageUrl,null, req.user._id); //req.user._id ile userId bilgisini app.js de tanımladığımız middleware ile alabiliyoruz.
@@ -68,7 +68,9 @@ exports.postAddProduct = (req,res,next)=>{
         price: price,
         imageUrl: imageUrl,
         description: description,
-        userId: req.user
+        userId: req.user,
+        isActive: false,
+        tags: ['akıllı telefon']
 
     })
 
@@ -77,7 +79,23 @@ exports.postAddProduct = (req,res,next)=>{
         .then(() => {
             res.redirect('/admin/products'); //Anasayfaya yönlendirildi.
         }).catch((err) => {
-            console.log(err.message);
+            let message = '';
+            if(err.name == 'ValidationError'){
+                for(field in err.errors){
+                    message += err.errors[field].message + '<br>';
+                }
+            }
+            res.render('admin/add-product',{
+                title: 'New Product',
+                path: '/admin/add-product',
+                errorMessage: message,
+                inputs: {
+                    name: name,
+                    price: price,
+                    description: description,
+                    imageUrl: imageUrl
+                }
+            });
         }); 
 
 

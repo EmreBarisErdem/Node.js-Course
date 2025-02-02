@@ -207,6 +207,7 @@
 
 const mongoose = require('mongoose');
 const Product = require('./product');
+const { isEmail } = require('validator');
 
 const userSchema = mongoose.Schema({
 
@@ -216,7 +217,13 @@ const userSchema = mongoose.Schema({
     },
     email: {
         type: String,
-        required: true
+        // validate: {
+        //     validator: function(value){
+        //         return '/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3}'.test(value); //regular expression of email validation
+        //     }
+        // }
+        validate: [isEmail,'Invalid Email'], // validator package'dan gelir.
+        
     },
     password: {
         type: String,
