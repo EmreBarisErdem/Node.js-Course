@@ -36,7 +36,7 @@ exports.getProducts = (req,res,next)=>{
             });
     }).catch((err) => {
         //console.log(err);
-        res.redirect('/500');
+        next(err);
     });
     //#endregion
 
@@ -253,7 +253,7 @@ exports.postEditProduct = (req,res,next)=>{
         .then(()=>{
             res.redirect('/admin/products?action=edit');
         })
-        .catch(err => res.redirect('/500'));
+        .catch(err => {next(err);});
 
     //#endregion
 
@@ -292,7 +292,7 @@ exports.postDeleteProduct = (req,res,next) => {
             res.redirect('/admin/products?action=delete'); // asenkron olduğu için burada redirect yapılmalı. Çünkü catch'den sonra aşağıda redirect yapılırsa işlem tamamlanmadan sayfaya yönlendirilir.
         })
         .catch((err) => {
-            res.redirect('/500');
+            next(err);
         });
     //#endregion
     //#region MongoDb ile...
@@ -341,8 +341,7 @@ exports.getCategories = (req,res,next) => {
             });
         })
         .catch((err) => {
-            console.log(err);
-            res.redirect('/500');
+            next(err);
         });
 
 
@@ -393,7 +392,7 @@ exports.postAddCategory = (req,res,next) => {
     category.save()
         .then(() => {
             res.redirect('/admin/categories?action=create');
-        }).catch(err => res.redirect('/500'));
+        }).catch(err => {next(err);});
     //#endregion
     
 
@@ -448,7 +447,7 @@ exports.postEditCategory = (req,res,next) => {
     })
     .then(()=>{
         res.redirect('/admin/categories?action=edit')
-    }).catch(err => res.redirect('/500'));
+    }).catch(err => {next(err);});
     //#endregion
 
     //#region MongoDb ile...
@@ -478,7 +477,7 @@ exports.postDeleteCategory = (req,res,next) =>{
             // console.log('Category has been deleted!')
             res.redirect('/admin/categories?action=delete');
         })
-        .catch(err=>res.redirect('/500'));
+        .catch(err=>{next(err);});
 
 
 }

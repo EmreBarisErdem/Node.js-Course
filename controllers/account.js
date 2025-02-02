@@ -2,6 +2,7 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const sendMail = require('../Utility/emailService');
 const getToken = require('../Utility/jwtToken');
+const Login = require('../models/login');
 
 exports.getLogin = (req, res, next) => {
     var errorMessage = req.session.errorMessage;
@@ -20,6 +21,62 @@ exports.postLogin = (req, res, next) => {
 
     const email = req.body.email;
     const password = req.body.password;
+
+    const loginModel = new Login({
+        email: email,
+        password: password
+    });
+
+    loginModel.validate()
+        .then(()=>{
+            User.findOne({email: email})
+            .then(user => {
+                if(!user){
+                    req.session.errorMessage = "Kullanıcı bulunamadı.";
+                    req.session.save(function (err){
+                        return res.redirect('/login');
+                    });
+                }
+                bcrypt.compare(password, user.password)
+                    .then(isSucceded => {
+                        if(isSucceded){
+                            //login işlemleri
+                            req.session.user = user;
+                            req.session.isAuthenticated = true;
+                            return req.session.save(() => {
+                                var url = req.session.redirectTo || '/' //kullanıcının gitmek istediği sayfa'
+                                delete req.session.redirectTo;
+                                //kullanıcının gitmek istediği sayfayı sessiondan sildik.
+                                res.redirect(url);
+                            });
+                        }
+                        //kullanıcıya hata bilgisi verilebilir.
+                        req.session.errorMessage = "Hatalı E-Posta ya da Parola";
+                        req.session.save(function (err){
+                            return res.redirect('/login');
+                        });
+                        
+                        
+                    });
+            })
+            .catch(err => {console.log(err);});
+        })
+        .catch(err => {
+            if(err.name == 'ValidationError'){
+                let message = '';
+                for(field in err.errors){
+                    message += err.errors[field].message + '<br>';
+                }
+                res.render('account/login',{
+                    path:'/login',
+                    title: 'Login',
+                    errorMessage: message
+               });
+            }
+            else{
+                next(err);
+            }
+        });
 
     //bu şekilde yapılan authentication işlemi çalışmaz çünkü middleware ile her requestte ben req'e yeni bir user atıyorum ve isAuthenticated alanı sıfırlanıyor.
     //#region cookie/session kullanımı...
@@ -54,39 +111,6 @@ exports.postLogin = (req, res, next) => {
     */
     //#endregion
 
-    User.findOne({email: email})
-        .then(user => {
-            if(!user){
-                req.session.errorMessage = "Kullanıcı bulunamadı.";
-                req.session.save(function (err){
-                    console.log(err);
-                    return res.redirect('/login');
-                });
-            }
-            bcrypt.compare(password, user.password)
-                .then(isSucceded => {
-                    if(isSucceded){
-                        //login işlemleri
-                        req.session.user = user;
-                        req.session.isAuthenticated = true;
-                        return req.session.save(() => {
-                            var url = req.session.redirectTo || '/' //kullanıcının gitmek istediği sayfa'
-                            delete req.session.redirectTo;
-                            //kullanıcının gitmek istediği sayfayı sessiondan sildik.
-                            res.redirect(url);
-                        });
-                    }
-                    res.redirect('/login');
-                    //kullanıcıya bilgi verilebilir.
-              
-                })
-                .catch(err => {
-                    console.log(err);
-                });
-            
-        })
-        .catch(err => console.log(err));
-    
 }
 
 exports.getRegister = (req, res, next) => {
@@ -139,7 +163,22 @@ exports.postRegister = (req, res, next) => {
             );
 
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            if(err.name == 'ValidationError'){
+                let message = '';
+                for(field in err.errors){
+                    message += err.errors[field].message + '<br>';
+                }
+                res.render('account/register',{
+                    path:'/register',
+                    title: 'Register',
+                    errorMessage: message
+                });
+            }
+            else{
+                next(err);
+            }
+        });
 }
 
 exports.getReset = (req, res, next) => {
@@ -202,9 +241,7 @@ exports.getNewPassword = (req, res, next) => {
             passwordToken: token
         });
 
-    }).catch(err => {
-        console.log(err);
-    });
+    }).catch(err => {next(err);});
         
     
 }
@@ -236,7 +273,7 @@ exports.postNewPassword = (req, res, next) => {
     }).then(()=>{
         res.redirect('/login');
     })
-    .catch(err => {console.log(err);});
+    .catch(err => {next(err);});
 
 
 

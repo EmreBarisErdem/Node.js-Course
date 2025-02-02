@@ -44,7 +44,7 @@ exports.getIndex = (req,res,next)=>{
             });
     })
     .catch((err) => {
-        console.log(err);
+        next(err);
     });
     //#endregion
 
@@ -122,7 +122,7 @@ exports.getProducts = (req,res,next)=>{
                 });
         })
         .catch((err) => {
-            console.log(err);
+            next(err);
         });
     //#endregion
 }
@@ -173,7 +173,7 @@ exports.getProductsByCategoryId = (req,res,next)=>{
                 }); // it renders the shop/product.pug file // title main-layout ta ki title oluyor.
         })
         .catch((err) => {
-            console.log(err);
+            next(err);
         });        
 }
 
@@ -191,7 +191,7 @@ exports.getCart = (req,res,next)=>{
                     products: user.cart.items,
                 }); // it renders the shop/cart.pug file // title main-layout ta ki title oluyor.
         })
-        .catch((err) => {console.log(err);});
+        .catch((err) => {next(err);});
 
 }
 
@@ -241,7 +241,7 @@ exports.postCart = (req,res,next)=>{
         .then(()=> {
             res.redirect('/cart');
         })
-        .catch(err => console.log(err));
+        .catch(err => {next(err);});
     
 }
 
@@ -293,7 +293,7 @@ exports.getOrders = (req,res,next)=>{
                 });
         })
         .catch((err) => {
-            console.log(err);
+            next(err);
         });
     //#endregion
 
@@ -381,7 +381,7 @@ exports.postOrder = (req,res,next)=>{
         .then(()=>{
             res.redirect('/orders');
         })
-        .catch(err=>console.log(err));
+        .catch(err=>{next(err);});
     //#endregion
 }
 
@@ -413,7 +413,7 @@ exports.postCartItemDelete = (req,res,next)=>{
             .deleteCartItem(productid)
             .then(()=>{
                 res.redirect('/cart');
-            });
+            })
 
 
 }
@@ -431,7 +431,7 @@ exports.getProduct = (req,res,next)=>{
                     path: '/products',
                 });
             }).catch((err) => {
-                console.log(err);
+                next(err);
             });
         
     //or with sequelize...
