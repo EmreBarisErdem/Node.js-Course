@@ -168,8 +168,15 @@ app.use('/admin',adminRoutes); //admin ön ekini ekleyerek adrese her defasında
 app.use(shopRoutes);
 app.use(accountRoutes);
 
+app.use('/500', errorController.get500Page);
 app.use(errorController.get404Page);
+//#region Error Handling through a middleware
+app.use((error,req,res,next) => {
+    //kullanıcıyı başka bir sayfaya yönlendirmedik.
+    res.status(500).render('error/500', {title: 'Server Error'});
 
+})
+//#endregion
 // app.get('/',(req,res)=>{
 //     res.send('Hello World');
 // })

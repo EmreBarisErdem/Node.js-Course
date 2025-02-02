@@ -35,7 +35,8 @@ exports.getProducts = (req,res,next)=>{
                 action: req.query.action, //Query String ile postEditProduct Methodundan geliyor.
             });
     }).catch((err) => {
-        console.log(err);
+        //console.log(err);
+        res.redirect('/500');
     });
     //#endregion
 
@@ -79,23 +80,56 @@ exports.postAddProduct = (req,res,next)=>{
         .then(() => {
             res.redirect('/admin/products'); //Anasayfaya yönlendirildi.
         }).catch((err) => {
-            let message = '';
             if(err.name == 'ValidationError'){
+                let message = '';
                 for(field in err.errors){
                     message += err.errors[field].message + '<br>';
                 }
+                res.render('admin/add-product',{
+                    title: 'New Product',
+                    path: '/admin/add-product',
+                    errorMessage: message,
+                    inputs: {
+                        name: name,
+                        price: price,
+                        description: description,
+                        imageUrl: imageUrl
+                    }
+                });
             }
-            res.render('admin/add-product',{
-                title: 'New Product',
-                path: '/admin/add-product',
-                errorMessage: message,
-                inputs: {
-                    name: name,
-                    price: price,
-                    description: description,
-                    imageUrl: imageUrl
-                }
-            });
+            //eğer hata validation hatası değil ise...
+            else{
+                
+                //#region Yönlendirme
+                //res.redirect('/');
+                //#endregion
+                
+                //#region hata mesajı
+                /*
+                res.status(500).render('admin/add-product',{
+                    title: 'New Product',
+                    path: '/admin/add-product',
+                    errorMessage: 'Oops Beklenmedik Bir Hata Oluştu!, Lütfen Tekrar Deneyiniz.',
+                    inputs: {
+                        name: name,
+                        price: price,
+                        description: description,
+                        imageUrl: imageUrl
+                    }
+                });
+                */
+                //#endregion
+
+                //#region 500 server ile alakalı bir error sayfasına yönlendirme
+                
+                //res.redirect('/500');
+                //#endregion
+
+                //#region Error Middleware Aracılığı ile..
+                next(err);
+                //#endregion
+
+            }
         }); 
 
 
@@ -172,7 +206,7 @@ exports.getEditProduct = (req,res,next)=>{
                         });
                 });
         })
-        .catch(err => console.log(err));
+        .catch(err => res.redirect('/500'));
 
     //#endregion
 }
@@ -219,7 +253,7 @@ exports.postEditProduct = (req,res,next)=>{
         .then(()=>{
             res.redirect('/admin/products?action=edit');
         })
-        .catch(err => console.log(err));
+        .catch(err => res.redirect('/500'));
 
     //#endregion
 
@@ -258,7 +292,7 @@ exports.postDeleteProduct = (req,res,next) => {
             res.redirect('/admin/products?action=delete'); // asenkron olduğu için burada redirect yapılmalı. Çünkü catch'den sonra aşağıda redirect yapılırsa işlem tamamlanmadan sayfaya yönlendirilir.
         })
         .catch((err) => {
-            console.log(err);
+            res.redirect('/500');
         });
     //#endregion
     //#region MongoDb ile...
@@ -308,6 +342,7 @@ exports.getCategories = (req,res,next) => {
         })
         .catch((err) => {
             console.log(err);
+            res.redirect('/500');
         });
 
 
@@ -358,7 +393,7 @@ exports.postAddCategory = (req,res,next) => {
     category.save()
         .then(() => {
             res.redirect('/admin/categories?action=create');
-        }).catch(err => console.log(err));
+        }).catch(err => res.redirect('/500'));
     //#endregion
     
 
@@ -377,6 +412,7 @@ exports.getEditCategory = (req,res,next) => {
             });
         }).catch((err) => {
             console.log(err);
+            res.redirect('/500');
         });
     //#endregion
 
@@ -412,7 +448,7 @@ exports.postEditCategory = (req,res,next) => {
     })
     .then(()=>{
         res.redirect('/admin/categories?action=edit')
-    }).catch(err => console.log(err));
+    }).catch(err => res.redirect('/500'));
     //#endregion
 
     //#region MongoDb ile...
@@ -442,7 +478,7 @@ exports.postDeleteCategory = (req,res,next) =>{
             // console.log('Category has been deleted!')
             res.redirect('/admin/categories?action=delete');
         })
-        .catch(err=>console.log(err));
+        .catch(err=>res.redirect('/500'));
 
 
 }
