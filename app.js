@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const mongoDbStore = require('connect-mongodb-session')(session);
 const csurf = require("csurf");
+const multer = require('multer');
 //https://expressjs.com/en/4x/api.html#app.set
 // app.set('title', 'My Site'); //set ettiğimiz değeri daha sonra get metodu ile alabiliyoruz.
 // console.log(app.get('title')); // "My Site"
@@ -42,10 +43,19 @@ var store = new mongoDbStore({
     collection: 'mySessions'
   });
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+    cb(null, '/public/img/');
+},
+filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + '-' + path.extname(file.originalname));
+}
+});
 
-//#region body parser middleware
+
 
 app.use(bodyParser.urlencoded({extended:false}));
+app.use(multer({storage: storage}).single('image'));
 app.use(cookieParser());
 app.use(session({
     secret: 'keyboard cat',
@@ -58,7 +68,6 @@ app.use(session({
 
 }));
 app.use(express.static(path.join(__dirname,'public')));
-//#endregion
 
 //#region user bilgisini her requestte göndermek için middleware oluşturuyoruz.
 
@@ -173,6 +182,7 @@ app.use(errorController.get404Page);
 //#region Error Handling through a middleware
 app.use((error,req,res,next) => {
     //kullanıcıyı başka bir sayfaya yönlendirmedik.
+    console.log(error);
     res.status(500).render('error/500', {title: 'Server Error'});
 
 })

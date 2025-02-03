@@ -1,5 +1,7 @@
 const Category = require('../models/category');
+const product = require('../models/product');
 const Product = require('../models/product');
+const fs = require('fs');
 
 exports.getProducts = (req,res,next)=>{
     
@@ -48,6 +50,11 @@ exports.getAddProduct = (req,res,next)=>{
     res.render('admin/add-product',{
         title: 'New Product',
         path: '/admin/add-product',
+        inputs: {
+            name: '',
+            price: '',
+            description: '',
+        }
     }); //view engine 'i kullanıyor, view dosyası içerisindeki add-product.pug dosyasını alıyor. // title main-layout ta ki title oluyor.    
 
     
@@ -58,8 +65,23 @@ exports.postAddProduct = (req,res,next)=>{
    
     const name = req.body.name ? req.body.name : null;
     const price = req.body.price ? req.body.price : null;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const description = req.body.description ? req.body.description : null;
+    //console.log(file);
+
+    if(!image) {
+        //eğer resim seçilmediyse aşağıdaki kodlar işletilmeyecek
+        return res.render('admin/add-product',{
+            title: 'New Product',
+            path: '/admin/add-product',
+            errorMessage: 'Lütfen Bir Resim Seçiniz',
+            inputs: {
+                name: name,
+                price: price,
+                description: description,
+            }
+        });
+    }
 
     //MongoDB ile...
     // const product = new Product( name, price,description, imageUrl,null, req.user._id); //req.user._id ile userId bilgisini app.js de tanımladığımız middleware ile alabiliyoruz.
@@ -67,7 +89,7 @@ exports.postAddProduct = (req,res,next)=>{
     {
         name: name,
         price: price,
-        imageUrl: imageUrl,
+        imageUrl: image.filename,
         description: description,
         userId: req.user,
         isActive: false,
@@ -93,7 +115,6 @@ exports.postAddProduct = (req,res,next)=>{
                         name: name,
                         price: price,
                         description: description,
-                        imageUrl: imageUrl
                     }
                 });
             }
@@ -219,11 +240,42 @@ exports.postEditProduct = (req,res,next)=>{
     const id= req.body.id
     const name = req.body.name;
     const price = req.body.price;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const description = req.body.description;
     const ids = req.body.categoryids;
 
+
     //#region Mongoose ile...
+
+    Product.findOne({_id:id, userId: req.user._id})
+        .then(product => {
+            if(!product){
+                return res.redirect('/');
+            }
+            product.name = name;
+            product.price = price;
+            product.description = description;
+            product.categories = ids;
+
+            if(image){
+                //eski resmi silmek için
+                fs.unlink('public/img/' + product.imageUrl, err => { 
+                    if(err){
+                        console.log(err);   
+                    }
+                });
+                product.imageUrl = image.filename;
+            }
+
+            return product.save();
+        })
+        .then(result => {
+            res.redirect('/admin/products?action=edit');
+    })
+    .catch(err => {next(err);});
+
+
+
     // Product.findById(id)
     //     .then(product => {
     //         product.name = name;
@@ -240,20 +292,6 @@ exports.postEditProduct = (req,res,next)=>{
 
 
     //or you can use this...
-
-        Product.findOneAndUpdate({_id:id, userId: req.user._id},{
-            $set: {
-                name: name,
-                price: price,
-                imageUrl: imageUrl,
-                description: description,
-                categories : ids
-            }
-        })
-        .then(()=>{
-            res.redirect('/admin/products?action=edit');
-        })
-        .catch(err => {next(err);});
 
     //#endregion
 
@@ -286,14 +324,30 @@ exports.postDeleteProduct = (req,res,next) => {
     //#region Mongoose İle...
     //or .findByIdAndRemove
     //or .deleteMany eğer birden fazla kayıt silmek istersek
-    Product.deleteOne({_id:id})
-        .then(() => {
-            console.log('Product Has Been Deleted!');
+
+    Product.findOne({_id:id, userId: req.user._id})
+        .then(product   => {
+            if(!product){
+                return next(new Error('Silinmek İstenen Ürün Bulunamadı!'));
+            }
+            fs.unlink('public/img/' + product.imageUrl, err => { 
+                if(err){
+                    console.log(err);   
+                }
+            });
+
+            return Product.deleteOne({_id:id, userId: req.user._id});
+        })
+        .then((result) => {
+            if(result.deletedCount === 0){
+                return next(new Error('Silinmek İstenen Ürün Bulunamadı!'));
+            }
             res.redirect('/admin/products?action=delete'); // asenkron olduğu için burada redirect yapılmalı. Çünkü catch'den sonra aşağıda redirect yapılırsa işlem tamamlanmadan sayfaya yönlendirilir.
         })
         .catch((err) => {
             next(err);
         });
+
     //#endregion
     //#region MongoDb ile...
 
